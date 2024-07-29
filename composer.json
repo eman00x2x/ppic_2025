@@ -1,0 +1,12 @@
+{
+    "require": {
+        "pecee/simple-router": "5.4.1.7",
+        "verot/class.upload.php": "^2.1",
+        "phrity/websocket": "^2.1",
+        "spipu/html2pdf": "^5.2",
+        "josantonius/session": "^2.0",
+        "phpmailer/phpmailer": "^6.9",
+        "ifsnop/mysqldump-php": "^2.12",
+        "catfan/medoo": "^2.1"
+    }
+}
