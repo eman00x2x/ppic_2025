@@ -1,0 +1,38 @@
+on:
+  push:
+    branches:
+      - main
+name: 🚀 Deploy website on push
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v4
+    
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ftp.philippinerealestateforum.com
+        username: ${{ secrets.ftp_username }}
+        password: ${{ secrets.ftp_password }}
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          eo.bat
+          eo.php
+          .php-cs
+          .env
+          env.cache.php
+          Config/config.php
+          Tests/
+          Storage/Cache/
+          Storage/Database/
+          Storage/Logs/
+          Storage/Sessions/
+          Storage/Traffics
+          Public/global_assets/images/
+          Public/global_assets/documents/
+          Public/global_assets/temporary/
