@@ -431,10 +431,9 @@ class PropertyService extends Service
 
 	private function formatResultData(IModel &$data): IModel
 	{
-		$thumb_img_filename = basename($data->thumb_img);
-
 		if (!file_exists(ROOT . "/Public/global_assets/images/properties/thumb-" . basename($data->thumb_img))) {
 			$thumb_img_parts = explode("/", $data->thumb_img);
+			$thumb_img_filename = end($data->thumb_img);
 			$data->thumb_img = implode("/", $thumb_img_parts) . "thumb-" . $thumb_img_filename;
 		}
 
