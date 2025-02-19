@@ -433,8 +433,12 @@ class PropertyService extends Service
 	{
 		if (!file_exists(ROOT . "/Public/global_assets/images/properties/thumb-" . basename($data->thumb_img))) {
 			$thumb_img_parts = explode("/", $data->thumb_img);
-			$thumb_img_filename = end($thumb_img_parts);
-			$data->thumb_img = implode("/", $thumb_img_parts) . "thumb-" . $thumb_img_filename;
+			$thumb_img_filename = array_pop($thumb_img_parts);
+			$data->thumb_img = implode("/", $thumb_img_parts) . "/thumb-" . $thumb_img_filename;
+		} else if (!file_exists(ROOT . "/Public/global_assets/images/listings/thumb-" . basename($data->thumb_img))) {
+			$thumb_img_parts = explode("/", $data->thumb_img);
+			$thumb_img_filename = array_pop($thumb_img_parts);
+			$data->thumb_img = implode("/", $thumb_img_parts) . "/thumb-" . $thumb_img_filename;
 		}
 
 		if(isset($data->long_desc)) {
