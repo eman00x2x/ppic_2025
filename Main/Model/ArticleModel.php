@@ -1,17 +1,27 @@
 <?php
 
-namespace Main\Model;
+namespace EO\Model;
 
-use Main\Interfaces\IModel as IModel;
+use Pecee\Exceptions\InvalidArgumentException;
+use EO\Interfaces\IModel as IModel;
+use EO\Database\DataModel;
+use EO\Model\Traits\ArticleTrait;
 
-class ArticleModel extends \Main\Model implements IModel
+class ArticleModel extends \EO\Model implements IModel
 {
+	protected $table = 'articles';
+	protected $primaryKey = 'article_id';
 
-	function __construct() {
-		$this->alias = "ar";
-		$this->table = "articles";
-		$this->primary_key = "article_id";
-		$this->init();
-	}
-
+	protected $properties = [
+		"article_id",
+		"category",
+		"title",
+		"name",
+		"content",
+		"is_published",
+		"created_by",
+		"created_at",
+		"modified_by",
+		"modified_at"
+	];
 }

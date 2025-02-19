@@ -1,0 +1,153 @@
+@import url('https://rsms.me/inter/inter.css');
+
+:root {
+	--tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+}
+html, body {
+	font-feature-settings: "cv03", "cv04", "cv11";
+	height: 100%;
+}
+
+a {
+	text-decoration: none !important;
+}
+
+input, textarea {
+	caret-color: black;
+}
+
+.navbar-overlap:after {
+	height:15rem;
+}
+
+.w-1 {
+	width:10px;
+}
+
+.page-pretitle {
+	margin-top: .25rem;
+}
+
+.photo-preview {
+	margin: 0 auto;
+	height: 200px;
+	width: 200px;
+	border: 1px solid #eee;
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center;
+	cursor: pointer;
+	border-radius: 3%;
+}
+
+#ImageBrowse, #PdfBrowse {
+	position: absolute;
+	left: -100000px;
+	top: 0;
+	opacity: 0;
+}
+
+table.table-fit {
+	width: auto !important;
+	table-layout: auto !important;
+}
+
+table.table-fit thead th,
+table.table-fit tbody td,
+table.table-fit tfoot th,
+table.table-fit tfoot td {
+	width: auto !important;
+}
+
+.avatar-xxl { --tblr-avatar-size: 10rem; }
+.avatar-xxxl { --tblr-avatar-size: 13rem; }
+.avatar-xxxxl { --tblr-avatar-size: 16rem; }
+
+.fs-8 { font-size: 8px; }
+.fs-9 { font-size: 9px; }
+.fs-10 {font-size:10px;}
+.fs-11 {font-size:11px;}
+.fs-12 {font-size:12px;}
+.fs-14 {font-size:14px;}
+.fs-16 {font-size:16px;}
+.fs-18 {font-size:18px;}
+.fs-20 {font-size:20px;}
+.fs-22 {font-size:22px;}
+.fs-24 {font-size:24px;}
+.fs-26 {font-size:26px;}
+.fs-28 {font-size:28px;}
+.fs-30 {font-size:30px;}
+.fs-32 {font-size:32px;}
+.fs-34 {font-size:34px;}
+.fs-36 {font-size:36px;}
+.fs-38 {font-size:38px;}
+.fs-40 {font-size:40px;}
+.fs-42 {font-size:42px;}
+.fs-43 {font-size:43px;}
+.fs-44 {font-size:44px;}
+.fs-46 {font-size:46px;}
+.fs-48 {font-size:48px;}
+.fs-50 {font-size:50px;}
+.fs-52 {font-size:52px;}
+.fs-54 {font-size:54px;}
+.fs-56 {font-size:56px;}
+.fs-58 {font-size:58px;}
+.fs-60 {font-size:60px;}
+.fs-62 {font-size:62px;}
+.fs-64 {font-size:64px;}
+.fs-66 {font-size:66px;}
+.fs-70 {font-size:70px;}
+.fs-74 {font-size:74px;}
+
+.cursor-alias {cursor: alias;}
+.cursor-all-scroll {cursor: all-scroll;}
+.cursor-auto {cursor: auto;}
+.cursor-cell {cursor: cell;}
+.cursor-context-menu {cursor: context-menu;}
+.cursor-col-resize {cursor: col-resize;}
+.cursor-copy {cursor: copy;}
+.cursor-crosshair {cursor: crosshair;}
+.cursor-default {cursor: default;}
+.cursor-e-resize {cursor: e-resize;}
+.cursor-ew-resize {cursor: ew-resize;}
+.cursor-grab {cursor: -webkit-grab; cursor: grab;}
+.cursor-grabbing {cursor: -webkit-grabbing; cursor: grabbing;}
+.cursor-help {cursor: help;}
+.cursor-move {cursor: move;}
+.cursor-n-resize {cursor: n-resize;}
+.cursor-ne-resize {cursor: ne-resize;}
+.cursor-nesw-resize {cursor: nesw-resize;}
+.cursor-ns-resize {cursor: ns-resize;}
+.cursor-nw-resize {cursor: nw-resize;}
+.cursor-nwse-resize {cursor: nwse-resize;}
+.cursor-no-drop {cursor: no-drop;}
+.cursor-none {cursor: none;}
+.cursor-not-allowed {cursor: not-allowed;}
+.cursor-pointer {cursor: pointer;}
+.cursor-progress {cursor: progress;}
+.cursor-row-resize {cursor: row-resize;}
+.cursor-s-resize {cursor: s-resize;}
+.cursor-se-resize {cursor: se-resize;}
+.cursor-sw-resize {cursor: sw-resize;}
+.cursor-text {cursor: text;}
+.cursor-url {cursor: url(myBall.cur),auto;}
+.cursor-w-resize {cursor: w-resize;}
+.cursor-wait {cursor: wait;}
+.cursor-zoom-in {cursor: zoom-in;}
+.cursor-zoom-out {cursor: zoom-out;}
+
+.response {
+	content: '';
+}
+
+/************** MESSAGE *********************/
+
+.message {
+	margin-top: 1rem;
+	margin-bottom: -0.50rem;
+	background: #FFF;
+}
+
+.message:hover {
+	cursor:pointer;
+}

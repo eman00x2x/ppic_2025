@@ -1,91 +1,57 @@
 <?php
 
-namespace Main\Model;
+namespace EO\Model;
 
-use Main\Interfaces\IModel as IModel;
+use Pecee\Exceptions\InvalidArgumentException;
+use EO\Model;
+use EO\Interfaces\IModel;
 
 /**
  * Class AccountModel
  * This class represents the Account Model and implements IModel interface.
  */
-class AccountModel extends \Main\Model implements IModel 
+class AccountModel extends Model implements IModel
 {
+	protected $table = 'accounts';
+	protected $primaryKey = 'account_id';
 
-	public $types = [
-		"Administrator", "Registered User", "Organization"
+	protected $properties = [
+		"account_id",
+		"photo",
+		"names",
+		"username",
+		"password",
+		"email",
+		"mobile_number",
+		"account_type",
+		"status",
+		"registered_at",
+		"permissions"
 	];
 
-	public $statuses = ["active", "pending_activation", "inactive", "banned"];
-
-	/**
-     * AccountModel constructor.
-     * Initializes the model with table name, primary key, alias and calls init method.
-     */
-    function __construct() {
-		
-		$this->alias = "a";
-		$this->table = "accounts";
-		$this->primary_key = "account_id";
-		$this->init();
-
-	}
-	
-	/**
-     * Validates user credentials.
-     * @param string $username The username to validate.
-     * @param string $password The password to validate.
-     * @return bool|mixed Returns false if validation fails, otherwise returns the user data.
-     */
-	function validateCredentials($credentials) {
-		
-		// Check data integrity
-		if($response = $this->checkDataIntegrity(data: $credentials)) {
-			// data integrity fail
-			return $response;
-		}
-
-		$data = $this->getBy("username", $this->column['username']);
-
-		if($data) {
-			if(password_verify($credentials['password'], $this->column['password'])) {
-				return $data;
-			}
-		}else {
-			return false;
-		}
-
+	public function properties()
+	{
+		return $this->hasMany(PropertyModel::class);
 	}
 
-	function getEmail($email) {
-
-		// Check data integrity
-		if($response = $this->checkDataIntegrity(data: ["email" => $email])) {
-			// data integrity fail
-			return $response;
-		}
-
-		if($data = $this->getBy("email", $this->column['email'])) {
-			return $data;
-		}else { 
-			return false;
-		}
-
-	}
-
-	function getUsername($username) {
-
-		// Check data integrity
-		if($response = $this->checkDataIntegrity(data: ["username" => $username])) {
-			// data integrity fail
-			return $response;
-		}
-
-		if($data = $this->getBy("username", $this->column['username'])) {
-			return $data;
-		}else {
-			return false;
-		}
-
+	public static function columns() {
+		return [
+			"fields" => [
+				"account_id" => "accounts.account_id", 
+				"photo" => "accounts.photo",
+				"names" => "accounts.names",
+				"full_name" => [
+					"raw" => "CONCAT(JSON_UNQUOTE(<accounts.names>->'$.firstname'), ' ', JSON_UNQUOTE(<accounts.names>->'$.lastname'))"
+				],
+				"username" => "accounts.username", 
+				"email" => "accounts.email", 
+				"mobile_number" => "accounts.mobile_number",
+				"account_type" => "accounts.account_type",
+				"status" => "accounts.status", 
+				"registered_at" => "accounts.registered_at",
+				"permissions" => "accounts.permissions"
+			]
+		];
 	}
 
 }

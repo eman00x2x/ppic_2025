@@ -1,11 +1,19 @@
 <?php
 
-namespace Main\Handlers;
+namespace EO\Handlers;
 
+use InvalidArgumentException;
 use Pecee\Http\Request;
+use Pecee\Http\Exceptions\MalformedUrlException;
 use Pecee\SimpleRouter\Exceptions\NotFoundHttpException;
 use Pecee\SimpleRouter\Handlers\IExceptionHandler;
-use Main\App\Controller\ErrorsController as ErrorsController;
+use EO\Handlers\Exceptions\DBQueryException;
+use EO\Handlers\Exceptions\ValidationException;
+use EO\Handlers\Exceptions\ResourceNotFoundException;
+use EO\Handlers\Exceptions\AuthorizationException;
+use EO\Handlers\Exceptions\MaintenanceException;
+use EO\Handlers\Exceptions\RateLimitException;
+use EO\Handlers\Exceptions\MailerException;
 
 class ExceptionHandler implements IExceptionHandler
 {
@@ -14,16 +22,12 @@ class ExceptionHandler implements IExceptionHandler
 	 * @param \Exception $error
 	 * @throws \Exception
 	 */
-	public function handleError(Request $request, \Exception $error): void
+	public function handleError(Request $request, $error): void
 	{
-
-		/* You can use the exception handler to format errors depending on the request and type. */
-
-		if ($error instanceof \Exception) {
-			/* response()->json([
-				'status' => 2,
-				'message' => "Oops! Something went wrong! Your are trying to upload a file that is not allowed to be uploaded or your doing something unexpected. Please stop doing something that is not allowed."
-			]); */
+		if(DEVELOPMENT) {
+			if ($error instanceof MailerException) {
+				return;
+			}
 
 			response()->json([
 				'status' => 2,
@@ -31,20 +35,37 @@ class ExceptionHandler implements IExceptionHandler
 				'code' => $error->getCode(),
 			]);
 		}
+		
+		$request->error = 1;
 
-		/* The router will throw the NotFoundHttpException on 404 */
-		if ($error instanceof NotFoundHttpException) {
-
-			/*
-			 * Render your own custom 404-view, rewrite the request to another route,
-			 * or simply return the $request object to ignore the error and continue on rendering the route.
-			 *
-			 * The code below will make the router render our page.notfound route.
-			 */
-
-			$request->setRewriteCallback("ErrorsController@notFound");
+		if(
+			$error instanceof ResourceNotFoundException ||
+			$error instanceof MalformedUrlException ||
+			$error instanceof NotFoundHttpException
+		) {
+			$request->setRewriteCallback("\EO\Http\Controllers\ErrorsController@notFound");
 			return;
+		}
 
+		if ($error instanceof AuthorizationException) {
+			$request->setRewriteCallback("\EO\Http\Controllers\ErrorsController@forbidden");
+			return;
+		}
+
+		if ($error instanceof MaintenanceException) {
+			$request->setRewriteCallback("\EO\Http\Controllers\ErrorsController@maintenance");
+			return;
+		}
+
+		if (
+			$error instanceof InvalidArgumentException ||
+			$error instanceof MailerException ||
+			$error instanceof DBQueryException || 
+			$error instanceof RateLimitException || 
+			$error instanceof \Exception
+		) {
+			$request->setRewriteCallback("\EO\Http\Controllers\ErrorsController@serverError");
+			return;
 		}
 
 		throw $error;

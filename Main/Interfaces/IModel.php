@@ -1,6 +1,6 @@
 <?php
 
-namespace Main\Interfaces;
+namespace EO\Interfaces;
 
 /**
  * Interface IModel
@@ -10,5 +10,5 @@ namespace Main\Interfaces;
  */
 interface IModel
 {
-    
+
 }

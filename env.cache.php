@@ -1,0 +1,16 @@
+<?php return array (
+  'DOMAIN' => 'http://framework',
+  'CDN' => 'http://framework/global_assets',
+  'DEVELOPMENT' => true,
+  'CACHE_ENABLE' => true,
+  'CACHE_RENEWAL_INTERVAL' => '+1 day',
+  'DB_HOST' => 'localhost',
+  'DB_USER' => 'root',
+  'DB_PASS' => '',
+  'DB_NAME' => 'star',
+  'DB_PREFIX' => 'star_',
+  'PAYPAL_CLIENT_ID' => 'AczoZMmV6Tkw24LL55FDfCaCMsp7aSo5bf75EFLy22u0nswrH15Cmrac2tsimtGCLaiU35vb605Pi3oF',
+  'PAYPAL_CLIENT_SECRET' => 'EOxCjX0hgxSaffhW1QEFZcqto_LBL_qnAIl22TuYH1sVio-AljiMdb6ti95V8z0lb_RbKLexNcSSibE0',
+  'PAYPAL_ENVIRONMENT' => 'sandbox',
+  'XENDIT_API_KEY' => 'xnd_development_NG7mUuHmDgZA8vcBnotcnTYi5EmJJHWqWV0UxeeF5m61k5NDFRFSzjPpZxlGM',
+);

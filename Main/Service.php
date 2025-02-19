@@ -1,32 +1,64 @@
 <?php
 
-namespace Main;
+namespace EO;
+
+use EO\Model;
+use EO\Handlers\Exceptions\ValidationException;
+use EO\Handlers\Exceptions\ResourceNotFoundException;
+use EO\Factories\Factory as Factory;
+use EO\Validation\Validator as Validator;
+use EO\Handlers\CacheHandler;
+use EO\Facades\EventFacade as Event;
+use EO\Facades\FileSystemFacade as FileSystem;
+use EO\Facades\CacheFacade;
 
 /**
- * View class for handling view related operations.
+ * Service class for handling logic related operations.
  */
 class Service
 {
-
-	function getModel($model, $options = []) {
-		$class = "\\Main\Model\\".$model."Model";
-		return new $class;
+	public Validator $validator;
+	public static $collections;
+	
+	function __construct()
+	{
+		CacheFacade::setCache(new CacheHandler());
+		
+		/* $this->validator = Factory::Validator()->resetConstraints(); */
+		$this->validator = new Validator();
 	}
 
-    /**
-	 * This function is a helper function to call other functions dynamically.
-	 * @param callable $function The name of the function to be called. It should be a valid callable function.
-	 * @param mixed $param The parameter to be passed to the function. It can be of any type.
-	 * @return mixed The result of the called function. The return type depends on the function being called.
-	 * @throws Exception If the function does not exist.
-	 * @throws InvalidArgumentException If the first parameter is not a callable function.
+	/**
+	 * @param callable $function The function to be called.
+	 * @param mixed $param The parameter to be passed to the function.
+	 * @return mixed The result of the function calls.
 	 */
-	function helper(callable $function, $param = []) {
-		if(is_callable($function)) {
-			return $function($param);
-		} else {
-			throw new InvalidArgumentException("$function must be a callable function.");
-		}
+	protected function helper(callable $function, $param) 
+	{
+		return helper($function, $param);
 	}
-    
+	
+	public function validateInput($data) 
+	{
+		if($this->validator->validate($data) === false) {
+			throw new ValidationException($this->validator->getErrors());
+		}
+		return $this->validator->getValidatedData();
+	}
+
+	public function upload($data = null, $params = ["file_type" => "image"]) 
+	{
+		return FileSystem::upload($data, $params);
+	}
+
+	public function log(array $data): void
+	{
+		$data['data'] = [
+			'route' => url()->getAbsoluteUrl(),
+			'data' => $data
+		];
+
+		Event::dispatch('logs.action', $data);
+	}
+
 }

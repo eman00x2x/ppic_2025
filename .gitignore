@@ -1,0 +1,14 @@
+.ssh
+Config/config.php
+Public/global_assets/images/temporary/
+Public/global_assets/images/properties/
+Public/global_assets/images/articles/
+Public/global_assets/images/accounts/
+Public/global_assets/images/filemanager/
+Public/global_assets/documents/
+Public/global_assets/temporary/
+fonts/
+.php_cs
+
+**/.htaccess
+**/error_log

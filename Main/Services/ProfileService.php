@@ -1,132 +1,97 @@
 <?php
 
-namespace Main\Services;
+namespace EO\Services;
 
-use Main\Model\ProfileModel as Profile;
-use Main\Interfaces\IService as IService;
+use Pecee\Http\Exceptions\MalformedUrlException;
+use EO\Handlers\Exceptions\ValidationException;
+use EO\Handlers\Exceptions\ResourceNotFoundException;
+use EO\Model;
+use EO\Service as Service;
+use EO\Facades\CacheFacade as Cache;
+use EO\Database\DataModel;
+use EO\Model\ProfileModel as Profile;
 
-class ProfileService implements IService
+class ProfileService extends Service
 {
-
-    private Profile $profile;
-
-    function __construct() {
-        $this->profile = new Profile();
-    }
-
-    function list(array $request, string $target_url) {
-
-		$this->profile
-			// Apply filters based on the request parameters.
-			->filter(request: $request)
-			// Arrange the profiles based on the request parameters default to updated_at in descending order.
-			->sort(request: $request, sorting: ["updated_at" => "DESC"])
-			// Retrieve the paginated list of profiles.
-			->getList(
-				// Determine the page number from the request, default to 1 if not provided.
-				page: ($request['page'] ?? 1),
-				// Determine the limit of profiles per page from the request, default to 20 if not provided.
-				limit: ($request['rows'] ?? 20),
-				// The target URL for pagination links.
-				url: $target_url
-			);
-
-		if($this->profile->results) {
-			for($i = 0; $i < count($this->profile->results); $i++) {
-				$this->profile->results[$i]['fullname'] = $this->profile->results[$i]['name']['firstname']." ".$this->profile->results[$i]['name']['lastname'];
-			}
-		}
-
-		return $this->profile;
-
-    }
-
-	function getByAccountId($account_id) {
-		$this->profile->getBy("account_id", $account_id);
-		return $this->get($this->profile->column['profile_id']);
+	function __construct() {
+		parent::__construct();
+		Model::get(Profile::class);
+		
+		$this->validator->setConstraints([
+			"firstname" => [
+				"length" => [ "min" => 2, "max" => 100 ],
+				"required" => true,
+				"restrictedWords" => true
+			],
+			"lastname" => [
+				"length" => [ "min" => 2, "max" => 100 ],
+				"required" => false,
+				"restrictedWords" => true
+			],
+			"birthdate" => [ 
+				"required" => true,
+				"date" => true
+			],
+			"mobileNumber" => [
+				"required" => false,
+				"mobileNumber" => true
+			]
+		]);
 	}
 
-    function get(int $id) {
+	function getProfiles(array $request): DataModel {
+		try {
+			// Call the getAll method on the $this->account object, passing the $request array as an argument
+			Profile::$model->getCollections($request);
+
+			// Check if the $this->account object has more than 0 rows
+			if (Profile::$model->getNumRows() > 0) {
+				// Iterate over the results property of the $this->account object
+				foreach (Profile::$model->getResults() as &$result) {
+					// Call the formatResultData method on each result and assign the returned value back to the result
+					$data[] = $this->formatResultData($result);
+				}
+				Profile::$model->setResults($data);
+			}
+		} catch (MalformedUrlException $e) {
+			// Throw a new exception of type ResourceNotFoundException with a message that includes the message from the caught exception
+			throw new ResourceNotFoundException("Resource Not Found! " . $e->getMessage());
+		}
+
+		return Profile::$model;
+	}
+
+	function getByAccountId($account_id): DataModel {
+		$results = Profile::$model->getBy("account_id", $account_id);
+		return $this->getProfile($results['profile_id']);
+	}
+
+	function getProfile(int $id): DataModel {
+		if ($_ENV['CACHE_ENABLE'] && ($data = Cache::getData("profile-$id"))) {
+			Profile::$model->setNumRows(1);
+			Profile::$model->setResults($data);
+			return Profile::$model;
+		}
 		
-		if(!isset($this->profile->column['profile_id'])) {
-        	$this->profile->getId($id);
-		}
-
-		if(isset($this->profile->column['profile_id'])) {
-
-			$this->profile->column['name'] = [
-				"firstname" 	=> ($this->profile->column['name']['firstname'] ?? ""),
-				"lastname" 		=> ($this->profile->column['name']['lastname'] ?? ""),
-				"middlename" 	=> ($this->profile->column['name']['middlename'] ?? ""),
-				"suffix" 		=> ($this->profile->column['name']['suffix'] ?? ""),
-				"nickname" 		=> ($this->profile->column['name']['nickname'] ?? "")
-			];
-
-			$this->profile->column['fullname'] = $this->profile->column['name']['firstname']." ".$this->profile->column['name']['lastname'];
-
-			$this->profile->column['birthdate'] = $this->profile->column['birthdate'] ?? date("Y-m-d", $this->profile->column['birthdate']);
-
-			if(isset($this->profile->column['skills']) && $this->profile->column['skills'] == "") { $this->profile->column['skills'] = [""]; }
-			if(isset($this->profile->column['socials']) && $this->profile->column['socials'] == "") { $this->profile->column['socials'] = [""]; }
-
-			if($this->profile->column['affiliation'] == "") { 
-				$this->profile->column['affiliation'] = [ 
-					0 => [
-						"organization" => "",
-						"title" => "",
-						"description" => "",
-						"date" => [
-							"from" => "",
-							"to" => ""
-						]
-					]
-				];
+		$results = Profile::$model->getId($id);
+		
+		if(Profile::$model->getNumRows() > 0) {
+			$data = $this->formatResultData($results);
+			Profile::$model->setResults($data);
+			
+			if ($_ENV['CACHE_ENABLE']) {
+				Cache::setData("profile-$id", $data);
 			}
-
-			if($this->profile->column['education'] == "") { 
-				$this->profile->column['education'] = [ 
-					0 => [
-						"school" => "",
-						"degree" => "",
-						"date" => [
-							"from" => "",
-							"to" => ""
-						]
-					]
-				];
-			}
-
-		}
-
-		return $this->profile;
-
-    }
-
-    function create(array $data) {
-
-		$data["updated_at"] = DATE_NOW;
-		$result = $this->profile->saveNew(data: $data);
-
-        if($result['status'] == 2) {
-			$response = [
-				"status" => 2,
-				"message" => $result['message']
-			];
 		}else {
-
-			$response = [
-				"status" => 1,
-				"message" => "Successfully save!"
-			];
-
+			throw new ResourceNotFoundException("Resource Not Found! Profile ID: $id");
 		}
 
-    }
+		return Profile::$model;
+	}
 
-    function update(int $id, array $data) {
+	function create(array $data): DataModel {
 
 		$data["updated_at"] = DATE_NOW;
-
 		$data['name'] = [
 			"firstname" 	=> ($data['firstname'] ?? ""),
 			"lastname" 		=> ($data['lastname'] ?? ""),
@@ -135,48 +100,85 @@ class ProfileService implements IService
 			"nickname" 		=> ($data['nickname'] ?? "")
 		];
 
-        $response = $this->profile->getId(id: $id);
+		if (isset($data['profile_image'])) {
+			$data['profile_image'] = $this->moveFile(basename($data['profile_image']), "/images/temporary", "/images/profiles");
+		}
 
-        if($response) {
+		$id = Profile::$model->new($data);
+		return Profile::$model;
+		
+	}
 
-            $result = $this->profile->where([
-				"profile_id" => $id
-			])->save(data: $data);
+	function update(int $id, array $profileData): DataModel {
+		$this->getProfile($id);
 
-			return [
-				"status" => $result['status'],
-				"message" => $result['message']
+		$updatedAt = DATE_NOW;
+		$nameData = [
+			'firstname' => $profileData['firstname'] ?? '',
+			'lastname' => $profileData['lastname'] ?? '',
+			'middlename' => $profileData['middlename'] ?? '',
+			'suffix' => $profileData['suffix'] ?? '',
+			'nickname' => $profileData['nickname'] ?? '',
+		];
+
+		Profile::$model->renew(array_merge($profileData, ['updated_at' => $updatedAt, 'name' => $nameData]), $id);
+		return Profile::$model;
+	}
+	
+	function destroy($id): DataModel {
+		$this->getProfile(id: $id);
+
+		Profile::$model->delete(["profile_id" => $id]);
+
+		if ($_ENV['CACHE_ENABLE']) {
+			Cache::removeCache("profile-$id");
+		}
+
+		return Profile::$model;
+	}
+
+	private function formatResultData(array $data): array  {
+		$data['name'] = [
+			"firstname" => $data['name']['firstname'] ?? "",
+			"lastname" => $data['name']['lastname'] ?? "",
+			"middlename" => $data['name']['middlename'] ?? "",
+			"suffix" => $data['name']['suffix'] ?? "",
+			"nickname" => $data['name']['nickname'] ?? "",
+		];
+
+		$data['birthdate'] = $data['birthdate'] ?? "";
+
+		if(isset($data['skills']) && $data['skills'] == "") { $data['skills'] = [""]; }
+		if(isset($data['socials']) && $data['socials'] == "") { $data['socials'] = [""]; }
+
+		if($data['affiliation'] == "") { 
+			$data['affiliation'] = [ 
+				0 => [
+					"organization" => "",
+					"title" => "",
+					"description" => "",
+					"date" => [
+						"from" => "",
+						"to" => ""
+					]
+				]
 			];
+		}
 
-        }
+		if($data['education'] == "") { 
+			$data['education'] = [ 
+				0 => [
+					"school" => "",
+					"degree" => "",
+					"date" => [
+						"from" => "",
+						"to" => ""
+					]
+				]
+			];
+		}
 
-        return [
-			"status" => 2,
-            "message" => "profile not found!"
-		];
-
-    }
-
-    function destroy($id) {
-
-        $data = $this->profile->getId(id: $id);
-
-        if($data) {
-
-            $this->profile->delete(id: $id, field: "profile_id");
-
-            return [
-                "status" => 1,
-                "message" => "profile deleted!"
-            ];
-
-        }
-
-        return [
-			"status" => 2,
-            "message" => "profile not found!"
-		];
-
-    }
+		return $data;
+	}
 
 }

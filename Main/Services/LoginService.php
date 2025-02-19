@@ -1,276 +1,154 @@
 <?php
 
-namespace Main\Services;
+namespace EO\Services;
 
-use Library\Mailer;
-use Main\Model\AccountLoginModel as AccountLogin;
-use Main\Model\AccountModel as Account;
-use Main\Services\AuthenticationService as Auth;
-use Main\Services\SessionService as Session;
+use EO\Handlers\Exceptions\AuthenticationException as AuthenticationException;
+use EO\Interfaces\IService as IService;
+use EO\Service as Service;
+use EO\Model\LoginModel as Login;
+use EO\Model\AccountModel as Account;
 
-class LoginService
+class LoginService extends Service
 {
-    
-	public Session $loginSession;
-    protected Auth $auth;
-    protected AccountLogin $accountLogin;
+	function getLogins(array $request = []): array
+	{
+		try {
+			self::$collections = login::load( Login::columns() )->getCollections($request);
+			$items = self::$collections->getItems();
 
-    function __construct() {
-		$this->auth = new Auth();
-		$this->loginSession = new Session();
-		$this->accountLogin = new AccountLogin();
-    }
-
-	function verify($request, $domain) {
-
-		$result = $this->auth->checkCredentials($request['username'], $request['password']);
-
-		if($result['status'] === 2) {
-			return $result;
+			if ($items->isNotEmpty()) {
+				return $items->map(function($data, $key) {
+					return $this->formatResultData($data);
+				})->toArray();
+			}
+		} catch (MalformedUrlException $e) {
+			// Throw a new exception of type ResourceNotFoundException with a message that includes the message from the caught exception
+			throw new ResourceNotFoundException("Resource Not Found! " . $e->getMessage());
 		}
 
-		$this->accountLogin->where([
-			"status" => 1,
-			"account_id" => $result['account_id']
-		])->getList();
-
-		if($this->accountLogin->rows >= 1) {
-
-			$this->loginSession->endSession($result['account_id']);
-
-			return [
-				"status" => 2,
-				"message" => "Someone already using this account. You will be logged out in all devices for your account security."
-			];
-
-		}
-
-		$result['user_agent'] = base64_decode($request['user_agent']);
-		$this->recordLogin($result, $domain);
-
-		return [
-			"status" => 1,
-			"message" => "Successfully login"
-		];
-
+		return $items->toArray();
 	}
 
-	public function recordLogin($data, $domain) {
+	function getLogin(int $id) {}
 
-		$this->loginSession->init();
-
-		/** LOGIN SESSION */
-		$login_session_id = $this->loginSession->sessionHandler->getId();
-		$data['login_session_id'] = $login_session_id;
-
-		$response = $this->accountLogin->saveNew([
+	function create(array $data)
+	{
+		return Login::create([
 			"account_id" => $data['account_id'],
-			"session_id" => $login_session_id,
+			"session_id" => $data['session_id'],
 			"status" => 1,
 			"login_at" => DATE_NOW,
-			"login_details" => $data['user_agent']
+			"login_details" => base64_decode($data['user_agent'])
 		]);
-
-		if($response['status'] == 1) {
-
-			$data['account_login_id'] = $response['id'];
-			
-			foreach($data as $key => $val) {
-				$_SESSION['account'][$key] = $val;
-			}
-
-			$_SESSION['domain'] = $domain;
-
-		}
-
 	}
 
-	public function generateToken(string $email, int $account_id) {
-		$time_validity = strtotime("+24 hours");
-		return bin2hex(base64_encode("email=$email&account_id=$account_id&validity=$time_validity"));
-    }
+	function update(array $data, int $id): array
+	{
+		Login::modify($data, $id);
+		return $data;
+	}
 
-	public function splitToken(string $token): array {
+	function updateBy(array $conditions, array $data): array
+	{
+		Login::modify($data, null, $conditions);
+		return $data;
+	}
 
-		$token = base64_decode(hex2bin($token));
-		$uris = explode("&", $token);
-		$data = [];
+	function destroy($id): void
+	{
+		Login::delete(["login_id" => $id]);
+	}
 
-		foreach($uris as $uri) {
-            $uri = explode("=", $uri);
-            $data[$uri[0]] = $uri[1];
-        }
+	/**
+	 * Checks for the duality of an account.
+	 *
+	 * This function checks if an account has any dual records based on the provided account ID.
+	 * It first checks for data integrity and then checks for any records with the status set to 1.
+	 *
+	 * @param int $account_id The ID of the account to check for duality.
+	 * @return int number of rows if duality is found, false otherwise.
+	 */
+	public function getDualLoginsCount($account_id)
+	{
+		self::$collections = Login::getBy(name: "account_id", value: $account_id, conditions: ["status" => 1]);
+		$items = self::$collections->getItems();
 
-		if(isset($data['email'])) {
-			return $data;
+		if($items->isNotEmpty()) {
+			return $items->count();
 		}
 
 		return false;
-
 	}
 
-	public function getPasswordResetToken(string $email, $callable) {
-		
-		$account = new Account();
-		$data = $account->getEmail($email);
+	function getBySessionId($session_id)
+	{
+		/* self::$collections = Login::load( Login::columns() )->getCollections(["session_id" => $session_id]); */
+		self::$collections = Login::load( Login::columns() )->getBy("session_id", $session_id);
+		$items = self::$collections->getItems();
 
-		if($data) {
-
-            $token = $this->generateToken(email: $data['email'], account_id: $data['account_id']);
-            
-			$callable(token: $token, data: $data);
-            return [
-				"status" => 1,
-				"data" => $data
-			];
-
-        }
-
-		return [
-			"status" => 2,
-            "type" => "error",
-            "message" => "Invalid email"
-		];
-
-	}
-
-	public function validatePaswordResetToken($token) {
-
-		$token = $this->splitToken(token: $token);
-
-		if($token['validity'] < DATE_NOW) {
-			return [
-				"status" => 2,
-				"type" => "error",
-				"message" => "Expired token"
-			];
+		if($items->isNotEmpty()) {
+			return $items->map(function($data, $key) {
+				return $this->formatResultData($data);
+			})->first()->toArray();
 		}
 
-		$account = new Account();
-		$data = $account->getEmail($token['email']);
-		
-		if($data) {
-            return [
-				"status" => 1,
-                "data" => $data
-			];
-        }
-
-		return [
-			"status" => 2,
-			"type" => "error",
-			"message" => "Invalid token"
-		];
-
+		return false;
 	}
 
-    function sendPasswordResetLink($request) {
+	function getTotalLoginPerDay(array $filter = [])
+	{
+		$this->buildFilters($filter);
+
+		self::$collections = Login::select([
+			"total" => Login::raw("CAST(COUNT(login_id) AS UNSIGNED)"),
+			"date" => Login::raw("DATE_FORMAT(DATE(FROM_UNIXTIME(login_at)),'%Y-%m-%d')")
+		])
+		->groupBy(["date"])
+		->getCollections($filter);
+
+		$items = self::$collections->getItems();
+
+		if($items->isNotEmpty()) {
+			return $items->toArray();
+		}
+
+		return false;
+	}
+
+	private function formatResultData($data)
+	{
+		$data->login_date = date("d M Y", $data->login_at);
 		
-		if(isset($request['email'])) {
+		if($data->login_details != "") {
+			$data->login_ip = $data->login_details['geo']['ip'];
+			$data->login_browser = $data->login_details['browser'];
+			$data->login_timezone = $data->login_details['geo']['timezone'];
+			$data->login_provider = $data->login_details['geo']['org'];
+			$data->login_location = $data->login_details['geo']['city'] . " " . $data->login_details['geo']['region'];
+		}
 		
-			$response = $this->getPasswordResetToken($request['email'], function($token, $data) {
-				
-				$message = $this->createPasswordResetEmailTemplate($token, $data);
+		$data->account = $data->account->toArray();
 
-				$mail = new Mailer();
-				$response = $mail
-					->build($message)
-						->send([
-							"to" => [
-								$data['email']
-							]
-						], CONFIG['site_name'] . " Password Reset Link Request ");
+		return $data;
+	}
 
-				if($response['status'] == 2) {
-					throw new \Exception($response['message']);
-				}
-
-			});
-
-			if($response['status'] == 1) {
-				$response = [
-					"status" => 1,
-					"message" => "Password reset link has been sent to your registered email."
-				];
-			}else {
-				$response = [
-					"status" => 2,
-					"message" => "Email \"".$post['email']."\" does not recognized by our system!."
-				];
+	private function buildFilters(array &$request): void 
+	{
+		if(isset($request['login_at'])) {
+			if(isset($request['login_at']['from']) && !isset($request['login_at']['to'])) {
+				$request['AND']['login_at[>=]'] = strtotime($request['login_at']['from']);
 			}
 
-		}else {
-			return [
-				"status" => 2,
-				"message" => "Invalid Email."
-			];
-		}
-		
-	}
-
-	function createPasswordResetEmailTemplate($token, $data) {
-		$html[] = "<h1><img src='".CDN."images/logo.png' /></h1><br/><table cellpadding='10' cellspacing='2' border='1'>";
-		$html[] = "<p>Hi ".$data['username']."!</p>";
-		
-		$html[] = "<p>You request a password reset link through our system, Please click the link below to reset your password now.</p>";
-		
-		$link = rtrim(DOMAIN, "/").url("LoginController@getResetPasswordForm", null, ['token' => $token]);
-		
-		$html[] = "<p>This link will be available for the next 24 hours</p>";
-		$html[] = "<p style='padding:10px;'><a href='$link'>Reset your password</a></p>";
-
-		return implode("", $html);
-	}
-
-	function saveNewPassword() {
-
-		$post = input()->all(['account_id', 'password', 'confirmPassword']);
-
-		$account = $this->getModel("Account");
-		$data = $account->getId(id: $post['account_id']);
-
-		if($data) {
-			$request = $account->addValidationRule([
-				"password" => [
-					"required" => true,
-					"length" => [
-						"minimum" => 6
-					]
-				],
-				"confirmPassword" => [
-					"required" => true,
-					"confirmPassword" => $post['password']
-				]
-			])->save($post);
-
-			if($request['status'] == 1) {
-				$this->getLibrary("Factory")->setMsg("Password saved successfully", "success");
-				
-				$response = array(
-                    "status" => 1,
-                    "message" => $this->helper(function: "get_message")
-                );
-			}else {
-				$this->getLibrary("Factory")->setMsg($request['message'], "error");
-
-				$response = array(
-                    "status" => 2,
-                    "message" => $this->helper(function: "get_message")
-                );
+			if(isset($request['login_at']['from']) &&  isset($request['login_at']['to'])) {
+				$request['AND']['login_at[<>]'] = [strtotime($request['login_at']['from']), strtotime($request['login_at']['to'])];
 			}
-			
-		}else {
-			$this->getLibrary("Factory")->setMsg("Account Invalid", "error");
 
-			$response = array(
-                "status" => 2,
-                "message" => $this->helper(function: "get_message")
-            );
+			unset($request['login_at']);
 		}
 
-		$this->setResponseType("JSON");
-		return $this->render($response);
-
+		if(isset($request['account_id']) && $request['account_id'] == "null") {
+			unset($request['account_id']);
+		}
 	}
-
+	
 }

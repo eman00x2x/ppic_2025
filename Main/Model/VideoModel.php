@@ -1,17 +1,22 @@
 <?php
 
-namespace Main\Model;
+namespace EO\Model;
 
-use Main\Interfaces\IModel as IModel;
+use Pecee\Exceptions\InvalidArgumentException;
+use EO\Interfaces\IModel as IModel;
 
-class VideoModel extends \Main\Model implements IModel
+class VideoModel extends \EO\Model implements IModel 
 {
+	protected $table = 'videos';
+	protected $primaryKey = 'video_id';
 
-	function __construct() {
-		$this->alias = "v";
-		$this->table = "videos";
-		$this->primary_key = "video_id";
-		$this->init();
-	}
-
+	protected $properties = [
+		"video_id",
+		"unique_id",
+		"category",
+		"thumbnail",
+		"url",
+		"embed",
+		"created_at"
+	];
 }

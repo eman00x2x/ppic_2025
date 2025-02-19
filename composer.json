@@ -1,4 +1,7 @@
 {
+    "autoload": {
+        "psr-4": {"EO\\": "Main/"}
+    },
     "require": {
         "pecee/simple-router": "5.4.1.7",
         "verot/class.upload.php": "^2.1",
@@ -7,6 +10,19 @@
         "josantonius/session": "^2.0",
         "phpmailer/phpmailer": "^6.9",
         "ifsnop/mysqldump-php": "^2.12",
-        "catfan/medoo": "^2.1"
+        "catfan/medoo": "^2.1",
+        "symfony/cache": "^7.1",
+        "monolog/monolog": "^3.7",
+        "symfony/rate-limiter": "^7.1",
+        "dragonmantank/cron-expression": "^3.3",
+        "symfony/filesystem": "^7.1",
+        "symfony/mailer": "^7.1",
+        "symfony/event-dispatcher": "^7.1",
+        "symfony/console": "^7.1"
+    },
+    "config": {
+        "platform": {
+            "php": "8.2.16"
+        }
     }
 }

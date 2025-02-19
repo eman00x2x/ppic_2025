@@ -1,33 +1,24 @@
 <?php
 
-namespace Main\Model;
+namespace EO\Model;
 
-use Main\Interfaces\IModel as IModel;
+use Pecee\Exceptions\InvalidArgumentException;
+use EO\Interfaces\IModel as IModel;
+use EO\Database\DataModel;
+use EO\Model\Traits\PropertyImageTrait;
 
-class PropertyImageModel extends \Main\Model implements IModel
+class PropertyImageModel extends \EO\Model implements IModel
 {
+	protected $table = 'property_images';
+	protected $primaryKey = 'image_id';
 
-	function __construct() {
-		$this->alias = "pr";
-		$this->table = "property_images";
-		$this->primary_key = "image_id";
-		$this->init();
-	}
-
-	function getByPropertyId($id) {
-
-		// Check data integrity
-		if($response = $this->checkDataIntegrity(data: ["property_id" => $id])) {
-			// data integrity fail
-			return $response;
-		}
-
-		if($data = $this->getBy("property_id", $this->column['property_id'])) {
-			return $data;
-		}else {
-			return false;
-		}
-
-	}
-
+	protected $properties = [
+		"image_id",
+		"property_id",
+		"filename",
+		"width",
+		"height",
+		"url",
+		"created_at"
+	];
 }
