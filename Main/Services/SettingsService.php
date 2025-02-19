@@ -19,7 +19,7 @@ class SettingsService extends Service
 
 	function getSettings(): array 
 	{
-		$result = Settings::checkTableIfExists('star_settings');
+		$result = Settings::checkTableIfExists('ppic_settings');
 
 		if($result == "") {
 			return $this->dummy();
