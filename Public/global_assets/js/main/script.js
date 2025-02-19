@@ -3,7 +3,7 @@ const app = function () {
 	"use strict";
 
 	const recordTraffic = () => {
-		const url = eo.DOMAIN + `/saveTraffic`;
+		const url = `https://www.philproperties.ph/saveTraffic`;
 		const pageTitle = document.title;
 		const pageUrl = window.location.href;
 		const {
