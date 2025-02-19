@@ -481,9 +481,9 @@ class PropertyService extends Service
 			"property_id" => $data->property_id,
 			"category" => $data->category,
 			"address" => [
-				"region" => $data->address['region'],
-				"province" => $data->address['province'],
-				"municipality" => $data->address['municipality']
+				"region" => isset($data->address['region']) ? $data->address['region'] : "",
+				"province" => isset($data->address['province']) ? $data->address['province'] : "",
+				"municipality" => isset($data->address['municipality']) ? $data->address['municipality'] : ""
 			],
 		];
 
