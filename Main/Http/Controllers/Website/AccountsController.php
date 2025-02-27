@@ -22,7 +22,7 @@ class AccountsController extends BaseController
 	{
 		$request = input()->all() ?? [];
 
-		$request['AND'] = [
+		$request = [
 			'status' => "active",
 			'username[!=]' => "eman"
 		];
