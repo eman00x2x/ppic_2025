@@ -22,8 +22,10 @@ class AccountsController extends BaseController
 	{
 		$request = input()->all() ?? [];
 
-		$request['status'] = "active";
-		$request['account_id[!=]'] = 22;
+		$request['AND'] = [
+			'status' => "active",
+			'account_id[!=]' => 22
+		];
 		$data['accounts'] = $this->accountService->getAccounts($request);
 		return View::set(path: "/website/accounts/accounts.php")->bind(data: $data);
 	}
