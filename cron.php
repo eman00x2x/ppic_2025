@@ -29,7 +29,7 @@ if ($_ENV['CACHE_ENABLE']) {
 	CacheFacade::setCache( new CacheHandler() );
 }
 
-LoggerFacade::setLogger(new LoggerHandler());
+Logger::setLogger(new LoggerHandler());
 
 try {
 	(new ScheduleHandler())->run();
