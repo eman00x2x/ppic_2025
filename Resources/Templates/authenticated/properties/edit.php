@@ -175,6 +175,7 @@ $html[] = "<div class='page-body'>";
 										$html[] = "<span class='form-hint mt-2'>Please specify the expiration date of your Authority to Negotiate for this property.</span>";
 									$html[] = "</div>";
 
+									$html[] = "<label class='form-label text-muted'>Owner Details</label>";
 									$html[] = "<div class='form-floating mb-3'>";
 										$html[] = "<input type='text' name='other_details[owned_by]' id='title' value='".$data['other_details']['owned_by']."' class='form-control' placeholder='Owner Name' />";
 										$html[] = "<label for='title'><i class='ti ti-writing'></i> Owner Name</label>";
