@@ -48,6 +48,11 @@ class DashboardController extends \EO\Http\BaseController
 	function getTotalTrafficsPerUrl() 
 	{
 		$request = input()->all();
+
+		if(!Auth::isAdmin()) {
+			$request["account_id"] = Auth::user()->id;
+		}
+
 		if(isset($request['filter'])) {
 			$request['created_at'] = convertToDateFilter($request['filter']);
 			unset($request['filter']);
