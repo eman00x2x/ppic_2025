@@ -12,6 +12,7 @@ class ScheduleHandler
 		\EO\Handlers\Tasks\CachePruningTask::class => "This task will remove unused files from the cache folder",
 		\EO\Handlers\Tasks\TrafficDBStoreTask::class => "This task will store traffics in database from a file created by TrafficCollector",
 		\EO\Handlers\Tasks\TemporaryFolderClearingTask::class => "This task will clear the temporary folder",
+		\EO\Handlers\Tasks\SessionStorageFolderClearingTask::class => "This task will clear the Session folder",
 	];
 
 	private $otherTasks = [
