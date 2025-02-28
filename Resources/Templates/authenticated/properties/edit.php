@@ -136,7 +136,7 @@ $html[] = "<div class='page-body'>";
 									$html[] = "<div class='form-floating mb-4'>";
 										$html[] = "<select name='com_share' id='com_share' class='form-select'>";
 											foreach($data['collections']['commission_sharing'] as $sharing) {
-												$sel = $sharing == $data['other_details']["com_share"] ? "selected" : "";
+												$sel = $sharing == ($data['other_details']["com_share"] ?? "") ? "selected" : "";
 												$html[] = "<option value='$sharing' $sel>$sharing Percent</option>";
 											}
 										$html[] = "</select>";
@@ -237,7 +237,7 @@ $html[] = "<div class='page-body'>";
 										$html[] = "<select class='form-select' name='property_type' id='property_type'>";
 											$property_type = array("Residential","Commercial");
 											foreach($property_type as $key => $val) {
-												$sel = $val == $data['property_type'] ? "selected" : "";
+												$sel = $val == ($data['property_type'] ?? "") ? "selected" : "";
 												$html[] = "<option value='".$val."' $sel>$val</option>";
 											}
 										$html[] = "</select>";
@@ -312,19 +312,19 @@ $html[] = "<div class='page-body'>";
 								$html[] = "<div class='form-group mb-3'>";
 									$html[] = "<label class='form-label text-muted'>Address</label>";
 									
-									$html[] = "<div class='form-floating mb-3 region-select' data-region='".$data['address']['region']."'>";
+									$html[] = "<div class='form-floating mb-3 region-select' data-region='".($data['address']['region'] ?? "")."'>";
 										$html[] = "<label for='region'>Region</label>";
 									$html[] = "</div>";
 
-									$html[] = "<div class='form-floating mb-3 province-select' data-province='".$data['address']['province']."'>";
+									$html[] = "<div class='form-floating mb-3 province-select' data-province='".($data['address']['province'] ?? "")."'>";
 										$html[] = "<label for='province'>Province</label>";
 									$html[] = "</div>";
 
-									$html[] = "<div class='form-floating mb-3 municipality-select' data-municipality='".$data['address']['municipality']."'>";
+									$html[] = "<div class='form-floating mb-3 municipality-select' data-municipality='".($data['address']['municipality'] ?? "")."'>";
 										$html[] = "<label for='municipality'>Municipality</label>";
 									$html[] = "</div>";
 
-									$html[] = "<div class='form-floating mb-3 barangay-select' data-barangay='".$data['address']['barangay']."'>";
+									$html[] = "<div class='form-floating mb-3 barangay-select' data-barangay='".($data['address']['barangay'] ?? "")."'>";
 										$html[] = "<label for='barangay'>Barangay</label>";
 									$html[] = "</div>";
 
