@@ -34,10 +34,12 @@ if(can('access_administration')) {
 		$html[] = "<div class='dropdown-menu '>";
 			$html[] = "<div class='dropdown-menu-columns'>";
 				$html[] = "<div class='dropdown-menu-column'>";
+					$html[] = "<a class='dropdown-item' href='" . url('logs') . "'>Logs</a>";
+					$html[] = "<a class='dropdown-item' href='" . url('administration.viewErrorLogFile') . "'>Error Log File</a>";
 					$html[] = "<a class='dropdown-item' href='" . url('administration.cronTasks') . "'>Cron Tasks</a>";
+					$html[] = "<a class='dropdown-item' href='" . url('administration.diskSpaces') . "'>Disks Usage</a>";
 					$html[] = "<a class='dropdown-item' href='" . url('administration') . "'>Database Query</a>";
 					$html[] = "<a class='dropdown-item' href='" . url('administration.databaseBackupFiles') . "'>Database Backups</a>";
-					$html[] = "<a class='dropdown-item' href='" . url('logs') . "'>Logs</a>";
 				$html[] = "</div>";
 			$html[] = "</div>";
 		$html[] = "</div>";

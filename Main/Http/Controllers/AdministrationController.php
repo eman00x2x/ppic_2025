@@ -8,6 +8,7 @@ use EO\Handlers\Exceptions\ResourceNotFoundException;
 use EO\Handlers\Exceptions\DBQueryException;
 use EO\Handlers\Exceptions\AuthorizationException;
 use EO\Handlers\ScheduleHandler;
+use EO\Facades\FileSystemFacade as FileSystem;
 use EO\Http\BaseController;
 use EO\Services\DatabaseService;
 
@@ -122,6 +123,53 @@ class AdministrationController extends BaseController
 		View::set(path: "/authenticated/administration/cron/tasks.php")->bind(data: $data);
 	}
 
+	function diskSpaces()
+	{
+
+		$storage_paths = [
+			"session" => [
+				"path" => ROOT . "/Storage/Sessions",
+				"task_run_url" => "/admin/super/cron/run/SessionStorageFolderClearingTask/"
+			],
+			"cache" => [
+				"path" => ROOT . "/Storage/Cache",
+				"task_run_url" => "/admin/super/cron/run/CacheClearingTask/"
+			],
+			"logs" => [
+				"path" => ROOT . "/Storage/Logs",
+				"task_run_url" => null
+			],
+			"temporary" => [
+				"path" => ROOT . "/Public/global_assets/images/temporary",
+				"task_run_url" => "/admin/super/cron/run/TemporaryFolderClearingTask/"
+			],
+			"account_images" => [
+				"path" => ROOT . "/Public/global_assets/images/accounts",
+				"task_run_url" => null
+			],
+			"property_images" => [
+				"path" => ROOT . "/Public/global_assets/images/properties",
+				"task_run_url" => null
+			],
+			"article_images" => [
+				"path" => ROOT . "/Public/global_assets/images/filemanager",
+				"task_run_url" => null
+			]
+		];
+
+		$data['total_disk_space'] = helper("readableFileSize", disk_total_space(ROOT));
+		$data['disk_free_space'] = helper("readableFileSize", disk_free_space(ROOT));
+
+		$data['disk_space'] = array_map(function($arg) {
+			return [
+				"size" => helper("readableFileSize", helper("getDirectorySize", $arg["path"])),
+				"task_run_url" => $arg["task_run_url"]
+			];
+		}, $storage_paths);
+
+		View::set(path: "/authenticated/administration/disks/disks.php")->bind(data: $data);
+	}
+
 	function cronTaskRun(string $cronTask)
 	{
 		$class = "\EO\Handlers\Tasks\\" . $cronTask;
@@ -129,6 +177,28 @@ class AdministrationController extends BaseController
 		$task->run();
 
 		return $this->handleMessageResponse("Successfully ran cron task $cronTask");
+	}
+
+	function viewErrorLogFile()
+	{
+		$error_log_file_path = ROOT . "Public/error_log";
+
+		ob_start();
+			echo "<pre>";
+			echo FileSystem::get($error_log_file_path);
+			echo "</pre>";
+		$data['content'] = ob_get_contents();
+		ob_end_clean();
+		
+		View::set(path: "/authenticated/administration/errorLogFile.php")->bind(data: $data);
+	}
+
+	function removeErrorLogFile()
+	{
+		/* $error_log_file_path = ROOT . "Public/error_log";
+		FileSystem::remove($error_log_file_path); */
+
+		return $this->handleMessageResponse("Error log file deleted!");
 	}
 
 }
