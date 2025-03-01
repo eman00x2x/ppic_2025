@@ -195,8 +195,8 @@ class AdministrationController extends BaseController
 
 	function removeErrorLogFile()
 	{
-		/* $error_log_file_path = ROOT . "Public/error_log";
-		FileSystem::remove($error_log_file_path); */
+		$error_log_file_path = ROOT . "Public/error_log";
+		FileSystem::remove($error_log_file_path);
 
 		return $this->handleMessageResponse("Error log file deleted!");
 	}
