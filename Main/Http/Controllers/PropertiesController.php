@@ -171,6 +171,7 @@ class PropertiesController extends \EO\Http\BaseController implements IControlle
 	public function saveNew()
 	{
 		$data = input()->all();
+		$data["account_id"] = Auth::user()->id;
 		
 		try {
 			if (isset($data['upload'])) {

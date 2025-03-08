@@ -39,9 +39,9 @@ class DataModelFacade
 		return self::$dataModel->getId($id);
 	}
 
-	public static function create($data): Void 
+	public static function create($data): int 
 	{
-		self::$dataModel->create($data);
+		return self::$dataModel->create($data);
 	}
 
 	public static function modify($data, $id = null): Void 
