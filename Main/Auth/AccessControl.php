@@ -4,6 +4,7 @@ namespace EO\Auth;
 
 class AccessControl
 {
+	
 	// List of predefined roles
 	private const ROLES = [
 		'Administrator',
