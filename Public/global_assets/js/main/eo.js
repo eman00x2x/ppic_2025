@@ -1378,7 +1378,7 @@
 
 		const _setSingleUploadContainer = (image, uploadedContainerSelector = '.photo-preview') => {
 			const containerSelector = uploadedContainerSelector.replace('.', '');
-			const previewElement = document.querySelector(containerSelector);
+			const previewElement = document.querySelector(uploadedContainerSelector);
 
 			if (!previewElement) {
 				console.error(`Element with selector '${uploadedContainerSelector}' not found.`);
@@ -1400,7 +1400,7 @@
 				alert.message(image.message);
 			}
 
-			const browseButton = document.querySelector(`${uploadedContainerSelector} .btn-browse`);
+			const browseButton = document.querySelector(`.btn-browse`);
 			if (browseButton) {
 				browseButton.style.display = 'block';
 			} else {
