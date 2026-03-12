@@ -9,7 +9,7 @@ class DocumentRenderer extends Document {
 		$tab = $document->getTab();
 
 		if($document->canonical != "") {
-			$html[] = '<link rel="canonical" href="' . $document->canonical . '" ' . $tagEnd . $line_end;
+			$html[] = '<link rel="canonical" href="' . $document->canonical . '" />' . $line_end;
 		}
 
 		// Generate META tags (needs to happen as early as possible in the head)
