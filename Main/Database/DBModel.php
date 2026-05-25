@@ -126,34 +126,10 @@ class DBModel
 	public function insert($values)
 	{
 		$result = $this->connection->insert($this->from, $values);
-
-		// Try Medoo::id() first
 		$id = $this->insertId();
+		$this->hasQueryError()->resetClause();
 
-		if ($id !== null) {
-			$this->hasQueryError()->resetClause();
-			return (int) $id;
-		}
-
-		// Medoo::id() returned null — try PDO directly
-		$id = $this->connection->pdo->lastInsertId();
-
-		if ($id !== false) {
-			$this->resetClause();
-			return (int) $id;
-		}
-
-		// PDO also failed — try SELECT LAST_INSERT_ID() MySQL native function
-		$id = $this->fetchLastInsertId();
-
-		if ($id > 0) {
-			$this->resetClause();
-			return $id;
-		}
-
-		// All methods failed — check if Medoo has error info
-		$this->hasQueryError();
-		throw new DBQueryException("INSERT failed for table '{$this->from}' — could not retrieve last insert ID");
+		return $id;
 	}
 
 	/**

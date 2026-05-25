@@ -146,38 +146,23 @@ class PropertyService extends Service
 		$data['post_score'] = $this->calculateScore($data);
 		$validated_data = $this->validateInput($data);
 
-		$id = 0;
+		// Create new property
+		$id = Property::create($validated_data);
 
-		try {
-			// Create new property
-			$id = Property::create($validated_data);
-
-			if (!$id) {
-				throw new \Exception("Failed to create property record - insert returned no ID");
-			}
-
-			if(isset($validated_data['documents'])) {
-				$this->processUploadedDocuments($validated_data['documents']);
-			}
-
-			$this->log([
-				'type' => 'info',
-				'message' => "Property posting creation with ID: $id succeeded",
-				'data' => $validated_data
-			]);
-		} catch (\Exception $e) {
-			$this->log([
-				"type" => "warning",
-				"message" => "Property posting creation failed",
-				"data" => [
-					"error" => $e->getMessage(),
-					"id" => $id,
-					"data" => $validated_data
-				]
-			]);
-			throw new \Exception($e->getMessage());
+		if (!$id) {
+			throw new \Exception("Failed to create property record - insert returned no ID $id");
 		}
 
+		if(isset($validated_data['documents'])) {
+			$this->processUploadedDocuments($validated_data['documents']);
+		}
+
+		$this->log([
+			'type' => 'info',
+			'message' => "Property posting creation with ID: $id succeeded",
+			'data' => $validated_data
+		]);
+		
 		return $id;
 	}
 

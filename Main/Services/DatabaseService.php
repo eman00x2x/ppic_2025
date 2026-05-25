@@ -19,7 +19,7 @@ class DatabaseService extends Service
 	public function __construct()
 	{
 		parent::__construct();
-		DB::setQueryBuilder(new QueryBuilder( Factory::DBO(), Factory::Pagination() ));
+		DB::setQueryBuilder(new QueryBuilder());
 
 		$database_config = DB::getDatabaseConfig();
 		$this->mysqlDump = new Mysqldump(
