@@ -53,6 +53,11 @@ class QueryBuilder
 		return $this->DBO->execute($query);
 	}
 
+	public function fetchLastInsertId(): int
+	{
+		return $this->DBO->fetchLastInsertId();
+	}
+
 	public function select(mixed $columns): self
 	{
 		if(is_string($columns)) {

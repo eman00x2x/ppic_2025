@@ -127,32 +127,33 @@ class DBModel
 	{
 		$result = $this->connection->insert($this->from, $values);
 
-		// If Medoo returned null, check if insert actually worked by trying lastInsertId
-		if ($result === null) {
-			// Check if there's a real error
-			$this->hasQueryError();
-			// Try getting ID directly — insert might have succeeded even if Medoo returned null
-			$id = $this->insertId();
-			if ($id !== null) {
-				$this->resetClause();
-				return (int) $id;
-			}
-			throw new DBQueryException("INSERT failed for table '{$this->from}' — query returned no ID");
-		}
-
+		// Try Medoo::id() first
 		$id = $this->insertId();
 
-		if ($id === null) {
-			// lastInsertId might have failed, try direct query
-			$id = $this->connection->pdo->lastInsertId();
-			if ($id !== false) {
-				$this->resetClause();
-				return (int) $id;
-			}
+		if ($id !== null) {
+			$this->hasQueryError()->resetClause();
+			return (int) $id;
 		}
 
-		$this->hasQueryError()->resetClause();
-		return (int) $id;
+		// Medoo::id() returned null — try PDO directly
+		$id = $this->connection->pdo->lastInsertId();
+
+		if ($id !== false) {
+			$this->resetClause();
+			return (int) $id;
+		}
+
+		// PDO also failed — try SELECT LAST_INSERT_ID() MySQL native function
+		$id = $this->fetchLastInsertId();
+
+		if ($id > 0) {
+			$this->resetClause();
+			return $id;
+		}
+
+		// All methods failed — check if Medoo has error info
+		$this->hasQueryError();
+		throw new DBQueryException("INSERT failed for table '{$this->from}' — could not retrieve last insert ID");
 	}
 
 	/**
@@ -295,6 +296,19 @@ class DBModel
 	public function insertId()
 	{
 		return $this->connection->id();
+	}
+
+	/**
+	 * Fetches the last inserted ID using SELECT LAST_INSERT_ID() MySQL function directly.
+	 * Bypasses Medoo and PDO::lastInsertId() which can return null/false in some cases.
+	 *
+	 * @return int The ID of the last inserted row. Returns 0 if no row was inserted.
+	 */
+	public function fetchLastInsertId(): int
+	{
+		$stmt = $this->connection->pdo->query("SELECT LAST_INSERT_ID() as id");
+		$row = $stmt->fetch(\PDO::FETCH_ASSOC);
+		return (int) ($row['id'] ?? 0);
 	}
 
 	/**
