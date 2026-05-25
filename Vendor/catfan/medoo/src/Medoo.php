@@ -2143,7 +2143,9 @@ class Medoo
             return (string) $id ?: null;
         }
 
-        return $this->pdo->lastInsertId($name);
+        $id = $this->pdo->lastInsertId($name);
+
+        return $id === false ? null : $id;
     }
 
     /**

@@ -133,8 +133,12 @@ class DBModel
 
 		$id = $this->insertId();
 
+		if ($id === null) {
+			throw new DBQueryException("INSERT succeeded for table '{$this->from}' but lastInsertId returned null");
+		}
+
 		$this->hasQueryError()->resetClause();
-		return $id;
+		return (int) $id;
 	}
 
 	/**
