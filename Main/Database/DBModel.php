@@ -127,14 +127,28 @@ class DBModel
 	{
 		$result = $this->connection->insert($this->from, $values);
 
+		// If Medoo returned null, check if insert actually worked by trying lastInsertId
 		if ($result === null) {
-			throw new DBQueryException("INSERT failed for table '{$this->from}' — query returned null");
+			// Check if there's a real error
+			$this->hasQueryError();
+			// Try getting ID directly — insert might have succeeded even if Medoo returned null
+			$id = $this->insertId();
+			if ($id !== null) {
+				$this->resetClause();
+				return (int) $id;
+			}
+			throw new DBQueryException("INSERT failed for table '{$this->from}' — query returned no ID");
 		}
 
 		$id = $this->insertId();
 
 		if ($id === null) {
-			throw new DBQueryException("INSERT succeeded for table '{$this->from}' but lastInsertId returned null");
+			// lastInsertId might have failed, try direct query
+			$id = $this->connection->pdo->lastInsertId();
+			if ($id !== false) {
+				$this->resetClause();
+				return (int) $id;
+			}
 		}
 
 		$this->hasQueryError()->resetClause();
