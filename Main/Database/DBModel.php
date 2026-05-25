@@ -46,7 +46,7 @@ class DBModel
 			// Error handling strategies when the error has occurred.
 			// PDO::ERRMODE_SILENT (default) | PDO::ERRMODE_WARNING | PDO::ERRMODE_EXCEPTION
 			// Read more from https://www.php.net/manual/en/pdo.error-handling.php.
-			'error' => \PDO::ERRMODE_WARNING
+			'error' => \PDO::ERRMODE_EXCEPTION
 		]);
 
 		return $this;
@@ -125,9 +125,16 @@ class DBModel
 	 */
 	public function insert($values)
 	{
-		$this->connection->insert($this->from, $values);
+		$result = $this->connection->insert($this->from, $values);
+
+		if ($result === null) {
+			throw new DBQueryException("INSERT failed for table '{$this->from}' — query returned null");
+		}
+
+		$id = $this->insertId();
+
 		$this->hasQueryError()->resetClause();
-		return $this->insertId();
+		return $id;
 	}
 
 	/**
@@ -260,7 +267,7 @@ class DBModel
 	/**
 	 * Retrieves the ID of the last inserted row.
 	 *
-	 * @return int The ID of the last inserted row.
+	 * @return ?int The ID of the last inserted row.
 	 *
 	 * @throws PDOException If there is an error executing the SQL query.
 	 *

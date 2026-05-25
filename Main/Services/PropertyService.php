@@ -136,7 +136,7 @@ class PropertyService extends Service
 	{
 		// Set timestamps and sanitize title
 		$data["created_at"] = DATE_NOW;
-		$data["modefied_at"] = DATE_NOW;
+		$data["modified_at"] = DATE_NOW;
 		$data['name'] = $this->helper("sanitize", ["string" => $data["title"]]) . "-" . $this->helper("generateRandomString", 10);
 
 		if (isset($data['upload'])) {
@@ -146,9 +146,15 @@ class PropertyService extends Service
 		$data['post_score'] = $this->calculateScore($data);
 		$validated_data = $this->validateInput($data);
 
+		$id = 0;
+
 		try {
 			// Create new property
 			$id = Property::create($validated_data);
+
+			if (!$id) {
+				throw new \Exception("Failed to create property record - insert returned no ID");
+			}
 
 			if(isset($validated_data['documents'])) {
 				$this->processUploadedDocuments($validated_data['documents']);
@@ -162,9 +168,10 @@ class PropertyService extends Service
 		} catch (\Exception $e) {
 			$this->log([
 				"type" => "warning",
-				"message" => "Property posting creation with ID: $id failed",
+				"message" => "Property posting creation failed",
 				"data" => [
 					"error" => $e->getMessage(),
+					"id" => $id,
 					"data" => $validated_data
 				]
 			]);

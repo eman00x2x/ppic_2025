@@ -173,7 +173,7 @@ class QueryBuilder
 	public function insert($data): int
 	{
 		$id = $this->DBO->setFrom($this->table)->insert($data);
-		return $id;
+		return (int) $id;
 	}
 
 	public function update(array $data, array $conditions = [])
