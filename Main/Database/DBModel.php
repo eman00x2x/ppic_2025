@@ -126,8 +126,8 @@ class DBModel
 	public function insert($values)
 	{
 		$result = $this->connection->insert($this->from, $values);
-		$id = $this->insertId();
-		$this->hasQueryError()->resetClause();
+		$id = $this->fetchLastInsertId();
+		$this->hasQueryError();
 
 		return $id;
 	}

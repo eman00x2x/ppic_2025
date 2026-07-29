@@ -40,11 +40,6 @@ class TrafficsController extends \EO\Http\BaseController
 	function saveNew() 
 	{
 		$request = input()->all();
-
-		if(str_contains($request['traffic']['url'], "?_ga=") || str_contains($request['traffic']['url'], "?_gl=")) {
-			return $this->handleMessageResponse("Traffics ignored");
-		}
-
 		$traffics = $this->trafficService->saveToFile($request);
 		return $this->handleMessageResponse("Traffics saved");
 	}

@@ -1,7 +1,6 @@
 <?php
 
 use EO\View;
-use EO\Auth\Auth as Auth;
 
 View::setMasterTemplate(path: "/authenticated/template.php");
 
@@ -81,35 +80,29 @@ $html[] = "<div class='page-body'>";
 					
 					$html[] = "<h3 class='card-title'>Account Details</h3>";
 
-					if(Auth::isAdmin()) {
+					if($data['account']['account_type'] != "Super Administrator") {
 						$html[] = "<div class='form-floating mb-3'>";
 							$html[] = "<select name='account_type' id='account_type' class='form-select'>";
 								foreach($data['collection']['types'] as $type) {
-									$sel = $type == $data['account']['account_type'] ? "selected" : "";
+									$sel = $type == $data['account']['account_type'] ? "select" : "";
 									$html[] = "<option value='$type' $sel>$type</option>";
 								}
 							$html[] = "</select>";
 							$html[] = "<label for='account_type'>Account Type</label>";
 						$html[] = "</div>";
-					
-
-    					$html[] = "<div class='form-floating mb-3'>";
-    						$html[] = "<input type='text' name='username' id='username' value='".$data['account']['username']."' class='form-control'  />";
-    						$html[] = "<label for='username'>Username</label>";
-    					$html[] = "</div>";
-					}else {
-					    $html[] = "<div class='p-2 mb-3'>";
-					        $html[] = "<label class='text-muted'>Username</label>";
-    						$html[] = "<p class='mb-0'>".$data['account']['username']."</p>";
-    					$html[] = "</div>";
 					}
+
+					$html[] = "<div class='form-floating mb-3'>";
+						$html[] = "<input type='text' name='username' id='username' value='".$data['account']['username']."' class='form-control'  />";
+						$html[] = "<label for='username'>Username</label>";
+					$html[] = "</div>";
 
 					$html[] = "<div class='form-floating mb-3'>";
 						$html[] = "<input type='email' name='email' id='email' value='".$data['account']['email']."' class='form-control'  />";
 						$html[] = "<label for='email'>Email</label>";
 					$html[] = "</div>";
 
-					if(Auth::isAdmin()) {
+					if($data['account']['account_type'] != "Super Administrator") {
 						$html[] = "<div class='form-floating mb-3'>";
 							$html[] = "<select name='status' id='status' class='form-select'>";
 								foreach($data['collection']['statuses'] as $statuses) {
@@ -150,35 +143,31 @@ $html[] = "<div class='page-body'>";
 				$html[] = "</div>";
 			$html[] = "</div>";
 
-            if(Auth::isAdmin()) {
-    			$html[] = "<div class='card mb-3'>";
-    				$html[] = "<div class='card-body'>";
-    					$html[] = "<div class='row'>";
-    						$html[] = "<div class='col-md-6 col-lg-6 col-sm-12 col-12'>";
-    							$html[] = "<h3 class='card-title mb-0'>Account Permissions</h3>";
-    							$html[] = "<span class='form-hint'>Sets the account permissions</span>";
-    							
-    							    $x = 0; $r=0;
-    								foreach($data['collection']['permissions'] as $app => $permissionList) {  $r = 0;
-    									$html[] = "<div class='my-3'>";
-    										$html[] = "<div class='pb-2'>".ucwords(str_replace("_"," ",$app))."</div>";
-    										foreach($permissionList as $permission) { 
-    											$html[] = "<div class=''>";
-    												$html[] = "<div class='form-check form-switch'>";
-    													$html[] = "<input class='form-check-input' type='checkbox' name='permissions[$app][$r]' value='$permission' id='".$app."_".$permission."' ".(isset($data['account']['permissions'][$app]) && in_array($permission, $data['account']['permissions'][$app]) ? "checked" : "").">";
-    													$html[] = "<label class='form-check-label' for='".$app."_".$permission."'>".ucwords(str_replace("_", " ", $permission))."</label>";
-    												$html[] = "</div>";
-    											$html[] = "</div>";
-    											$r++;
-    										}
-    									$html[] = "</div>";
-    								}
-    						   
-    						$html[] = "</div>";
-    					$html[] = "</div>";
-    				$html[] = "</div>";
-    			$html[] = "</div>";
-            }
+			$html[] = "<div class='card mb-3'>";
+				$html[] = "<div class='card-body'>";
+					$html[] = "<div class='row'>";
+						$html[] = "<div class='col-md-6 col-lg-6 col-sm-12 col-12'>";
+							$html[] = "<h3 class='card-title mb-0'>Account Permissions</h3>";
+							$html[] = "<span class='form-hint'>Sets the account permissions</span>";
+							
+								foreach($data['collection']['permissions'] as $app => $permissionList) {
+									$html[] = "<div class='my-3'>";
+										$html[] = "<div class='pb-2'>".ucwords(str_replace("_"," ",$app))."</div>";
+										foreach($permissionList as $permission) {
+											$html[] = "<div class=''>";
+												$html[] = "<div class='form-check form-switch'>";
+													$html[] = "<input class='form-check-input' type='checkbox' name='permissions[$app][]' value='$permission' id='".$app."_".$permission."' ".(isset($data['account']['permissions'][$app]) && in_array($permission, $data['account']['permissions'][$app]) ? "checked" : "").">";
+													$html[] = "<label class='form-check-label' for='".$app."_".$permission."'>".ucwords(str_replace("_", " ", $permission))."</label>";
+												$html[] = "</div>";
+											$html[] = "</div>";
+										}
+									$html[] = "</div>";
+								}
+						   
+						$html[] = "</div>";
+					$html[] = "</div>";
+				$html[] = "</div>";
+			$html[] = "</div>";
 
 		$html[] = "</form>";
 

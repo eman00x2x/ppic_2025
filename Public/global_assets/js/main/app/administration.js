@@ -184,22 +184,6 @@ const administration = function () {
 				}
 			});
 		});
-
-		$(document).on('click', '.btn-remove-error-log-file', function () {
-			const url = $(this).data('url');
-			eo.component.alert.loader("Deleting file...");
-			eo.get(url, {
-				onSuccess: function (data) {
-					eo.component.alert.message(data.message);
-					setTimeout(() => {
-						eo.component.alert.loader("Please wait while the page is reloading...");
-					}, 500);
-					setTimeout(() => {
-						location.reload();
-					}, 1000);
-				}
-			});
-		});
 	};
 
 	return {

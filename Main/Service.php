@@ -22,8 +22,10 @@ class Service
 	
 	function __construct()
 	{
-		CacheFacade::setCache(new CacheHandler());
-		
+		if ($_ENV['CACHE_ENABLE']) {
+			CacheFacade::setCache(new CacheHandler());
+		}
+
 		/* $this->validator = Factory::Validator()->resetConstraints(); */
 		$this->validator = new Validator();
 	}

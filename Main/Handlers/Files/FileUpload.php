@@ -62,8 +62,8 @@ class FileUpload
 		"pdf" => 2097152
 	];
 
-	protected function setMaxFileSize(string $file_type, string $file_size): void
-	{
+	protected function setMaxFileSize(string $file_type, string $file_size): void {
+		
 		if(!is_string($file_type)) {
 			throw new \InvalidArgumentException("Invalid file type specified: " . $file_type);
 		}
@@ -76,17 +76,18 @@ class FileUpload
 		$this->settings['file_max_size'] = $this->allowedFileSizes[$file_type];
 	}
 
-	protected function setAllowedMimeTypes($file_type): void 
-	{
+	protected function setAllowedMimeTypes($file_type): void {
+
 		if(!isset(self::ALLOWED_MIME_TYPES[$file_type])) {
 			throw new \InvalidArgumentException("Invalid file type specified: " . $file_type);
 		}
 
 		$this->mimeTypes = self::ALLOWED_MIME_TYPES[$file_type];
+
 	}
 
-	protected function convertfileSize(string $size)
-	{
+	protected function convertfileSize(string $size) {
+
 		if(strpos($size, "MB") !== false) {
 			$input = explode("MB", $size);
 			$unit = "MB";
@@ -98,30 +99,27 @@ class FileUpload
 		}
 
 		return $input[0] * self::FILE_SIZES[$unit];
+
 	}
 
-	protected function setDestinationFolder(string $destination_folder): void
-	{
+	protected function setDestinationFolder(string $destination_folder): void {
 		$this->settings['destination_folder'] = $destination_folder;
 	}
 
-	protected function setTempFolder(string $temp_folder): void 
-{
+	protected function setTempFolder(string $temp_folder): void {
 		$this->settings['temp_folder'] = $temp_folder;
 	}
 
-	protected function setTempUrl(string $temp_url): void
-	{
+	protected function setTempUrl(string $temp_url): void {
 		$this->settings['temp_url'] = $temp_url;
 	}
 
-	protected function setFinalUrl(string $final_url): void
-	{
+	protected function setFinalUrl(string $final_url): void {
 		$this->settings['final_url'] = $final_url;
 	}
 
-	private function resizeImage($resize, $handle)
-	{
+	private function resizeImage($resize, $handle) {
+
 		if(!isset($resize["width"])) {
 			throw new \InvalidArgumentException("Image resize options must have width and/or height values");
 		}
@@ -136,10 +134,11 @@ class FileUpload
 		}
 		
 		return $handle;
+
 	}
 
-	protected function verifyOptions(array $options): void
-	{
+	protected function verifyOptions(array $options): void {
+
 		$this->options = $options;
 
 		foreach($options as $name => $value) {
@@ -171,15 +170,15 @@ class FileUpload
 			$this->setAllowedMimeTypes($options['file_type']);
 			$this->setMaxFileSize($options['file_type'], $file_max_size);
 		}
+
 	}
 
-	function getResults()
-	{
+	function getResults() {
 		return $this->results;
 	}
 
-	function singleUpload(array $data, array $options)
-	{
+	function singleUpload(array $data, array $options) {
+
 		$this->verifyOptions($options);
 		
 		$handle = $this->processUpload( $this->createUploadInstance(data: $data) );
@@ -189,10 +188,11 @@ class FileUpload
 		}
 
 		return;
+
 	}
 
-	function multipleUpload(array $data, array $options)
-	{
+	function multipleUpload(array $data, array $options) {
+
 		$this->verifyOptions($options);
 		
 		$files = array();
@@ -215,16 +215,16 @@ class FileUpload
 		}
 
 		return;
+
 	}
 
-	function createUploadInstance(array $data): Upload
-	{
+	function createUploadInstance(array $data): Upload {
 		$handle = new Upload($data); 
 		return $handle;
 	}
 
-	function processUpload(Upload $handle): Upload
-	{
+	function processUpload(Upload $handle): Upload {
+
 		if ($handle->uploaded) {
 
 			$handle->mime_check = true;
@@ -248,23 +248,11 @@ class FileUpload
 		}
 
 		return $handle;
+
 	}
 
-	function createThumbnail(Upload $handle, $path, $filename)
-	{
-		$handle = $this->resizeImage([
-			"width" => 300
-		], $handle);
+	function processUploaded(Upload $handle) {
 
-		$handle->Process($path);
-
-		if ($handle->processed) {
-			rename($path . $handle->file_dst_name, $path . "thumb-" . $filename);
-		}
-	}
-
-	function processUploaded(Upload $handle)
-	{
 		$path = ROOT . "/" . $this->settings['temp_folder'] . "/";
 		$handle->Process($path);
 
@@ -276,8 +264,7 @@ class FileUpload
 			
 			$new_name = $uid . "." . $ext;
 			rename($path . $handle->file_dst_name, $path . $new_name);
-			$this->createThumbnail($handle, $path, $new_name);
-
+		
 			$this->results[] = [
 				"status" => 1,
 				"id" => $uid,
@@ -286,7 +273,7 @@ class FileUpload
 				"temp_url" => $this->settings['temp_url'] . "/" . $new_name,
 				"final_url" => $this->settings['final_url'] . "/" . $new_name,
 				"width" => $handle->image_dst_x,
-				"height" => $handle->image_dst_y,
+				"height" => $handle->image_dst_y, 
 				"size" => readableFileSize($handle->file_src_size)
 			];
 		
@@ -309,6 +296,7 @@ class FileUpload
 			];
 
 		}
+
 	}
 
 }

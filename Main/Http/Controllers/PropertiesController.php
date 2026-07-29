@@ -171,7 +171,6 @@ class PropertiesController extends \EO\Http\BaseController implements IControlle
 	public function saveNew()
 	{
 		$data = input()->all();
-		$data["account_id"] = Auth::user()->id;
 		
 		try {
 			if (isset($data['upload'])) {
@@ -283,104 +282,4 @@ class PropertiesController extends \EO\Http\BaseController implements IControlle
 	}
 	/** END DOCUMENTS */
 
-
-	/* function createPropertiesThumbnail()
-	{
-		$rootDirectory = ROOT . "/Public/global_assets/images/listings";
-		$thumbnailDirectory = $rootDirectory . "/thumbnail";
-
-		$data['properties'] = $this->propertyService->getProperties(["rows" => 1000]);
-
-		foreach($data['properties'] as $property) {
-			$thumb_img = explode("/", $property['thumb_img']);
-			$filename = end($thumb_img);
-
-			$file = $rootDirectory . "/" . $filename;
-
-			if (file_exists($file)) {
-
-				$w = 300;
-				$h = 300;
-
-				list($width, $height, $type) = getimagesize($file);
-				$r = $width / $height;
-
-				if ($w / $h > $r) {
-					$newwidth = $h * $r;
-					$newheight = $h;
-				} else {
-					$newheight = $w / $r;
-					$newwidth = $w;
-				}
-
-				switch ($type) {
-					case IMAGETYPE_JPEG:
-						$src = imagecreatefromjpeg($file);
-						break;
-					case IMAGETYPE_PNG:
-						$src = imagecreatefrompng($file);
-						// Handle transparency for PNG images
-						imagealphablending($src, false);
-						imagesavealpha($src, true);
-						break;
-					default:
-						continue; // Skip unsupported image types
-				}
-
-				$dst = imagecreatetruecolor($newwidth, $newheight);
-
-				if ($type == IMAGETYPE_PNG) {
-					// Handle transparency for PNG images
-					imagealphablending($dst, false);
-					imagesavealpha($dst, true);
-					$transparent = imagecolorallocatealpha($dst, 0, 0, 0, 127);
-					imagefilledrectangle($dst, 0, 0, $newwidth, $newheight, $transparent);
-				}
-
-				imagecopyresampled($dst, $src, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
-
-				// Save the resized image to the thumbnail directory
-				$thumbnailFile = $thumbnailDirectory . "/" . $filename;
-
-				switch ($type) {
-					case IMAGETYPE_JPEG:
-						imagejpeg($dst, $thumbnailFile);
-						break;
-					case IMAGETYPE_PNG:
-						imagepng($dst, $thumbnailFile);
-						break;
-				}
-
-				imagedestroy($src);
-				imagedestroy($dst);
-
-
-			}
-
-		}
-
-	}
-
-	function updatePropertiesThumbnail()
-	{
-		$rootDirectory = ROOT . "/Public/global_assets/images/listings";
-		$thumbnailDirectory = $rootDirectory . "/thumbnail";
-
-		$data['properties'] = $this->propertyService->getProperties(["rows" => 1000]);
-
-		foreach ($data['properties'] as $property) {
-			$thumb_img = explode("/", $property['thumb_img']);
-			$filename = end($thumb_img);
-
-			$thumbnail = $thumbnailDirectory . "/" . $filename;
-
-			if (file_exists($thumbnail)) {
-				$property_id = $property['property_id'];
-				$new_data = $property;
-				$new_data['thumb_img'] = "https://images.philproperties.ph/listings/thumbnail/" . $filename;
-				$this->propertyService->update($property_id, $new_data);
-			}
-
-		}
-	} */
 }

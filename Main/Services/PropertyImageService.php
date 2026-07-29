@@ -66,11 +66,6 @@ class PropertyImageService extends Service
 			$this->rootDirectory . "/properties/" . $data['filename']
 		);
 
-		FileSystem::move(
-			$this->rootDirectory . "/temporary/thumb-" . $data['filename'],
-			$this->rootDirectory . "/properties/thumb-" . $data['filename']
-		);
-
 		$data['filename'] = basename($final_url);
 		$data['url'] = CDN . "/images/properties/" . $final_url;
 		$data['created_at'] = DATE_NOW;
@@ -88,18 +83,7 @@ class PropertyImageService extends Service
 	{
 		$images = $this->getPropertyImage(id: $id);
 		$image_path = $this->rootDirectory . "/properties/" . $images['filename'];
-		$thumb_image_path = $this->rootDirectory . "/properties/thumb-" . $images['filename'];
 
-		if(FileSystem::exists($image_path)) {
-			FileSystem::remove($image_path);
-		}
-
-		if(FileSystem::exists($thumb_image_path)) {
-			FileSystem::remove($thumb_image_path);
-		}
-
-		/** FOR PHILPROPERTIES IMAGE FOLDER */
-		$image_path = $this->rootDirectory . "/listings/" . $images['filename'];
 		if(FileSystem::exists($image_path)) {
 			FileSystem::remove($image_path);
 		}
@@ -123,8 +107,6 @@ class PropertyImageService extends Service
 		foreach($images as $result) {
 			if(isset($result['image_id'])) {
 				FileSystem::remove($this->rootDirectory . "/properties/" . $result['filename']);
-				/** FOR PHILPROPERTIES IMAGE FOLDER */
-				FileSystem::remove($this->rootDirectory . "/listings/" . $result['filename']);
 			}
 			Cache::removeCache("propertyImage-" . $result['image_id']);
 		}

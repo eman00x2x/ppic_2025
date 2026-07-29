@@ -126,23 +126,6 @@ $html[] = "<div class='page-body'>";
 											$html[] = "<label for='authority_to_sell_expiration'><i class='ti ti-calendar'></i> Expiration Date</label>";
 											$html[] = "<span class='form-hint mt-2'>Please specify the expiration date of your Authority to Negotiate for this property.</span>";
 										$html[] = "</div>";
-
-										$html[] = "<label class='form-label text-muted'>Owner Details</label>";
-										$html[] = "<div class='form-floating mb-3'>";
-											$html[] = "<input type='text' name='other_details[owned_by]' id='title' value='' class='form-control' placeholder='Owner Name' />";
-											$html[] = "<label for='title'><i class='ti ti-writing'></i> Owner Name</label>";
-										$html[] = "</div>";
-
-										$html[] = "<div class='form-floating mb-3'>";
-											$html[] = "<input type='text' name='other_details[contact_details]' id='title' value='' class='form-control' placeholder='Owner Contact Details' />";
-											$html[] = "<label for='title'><i class='ti ti-writing'></i> Owner Contact Details</label>";
-										$html[] = "</div>";
-
-										$html[] = "<div class='form-floating mb-3'>";
-											$html[] = "<input type='text' name='other_details[exact_address]' id='title' value='' class='form-control' placeholder='Owner Exact Address' />";
-											$html[] = "<label for='title'><i class='ti ti-writing'></i> Owner Exact Address</label>";
-										$html[] = "</div>";
-										
 									$html[] = "</div>";
 
 								$html[] = "</div>";

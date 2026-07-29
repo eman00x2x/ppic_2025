@@ -1378,7 +1378,7 @@
 
 		const _setSingleUploadContainer = (image, uploadedContainerSelector = '.photo-preview') => {
 			const containerSelector = uploadedContainerSelector.replace('.', '');
-			const previewElement = document.querySelector(uploadedContainerSelector);
+			const previewElement = document.querySelector(containerSelector);
 
 			if (!previewElement) {
 				console.error(`Element with selector '${uploadedContainerSelector}' not found.`);
@@ -1400,7 +1400,7 @@
 				alert.message(image.message);
 			}
 
-			const browseButton = document.querySelector(`.btn-browse`);
+			const browseButton = document.querySelector(`${uploadedContainerSelector} .btn-browse`);
 			if (browseButton) {
 				browseButton.style.display = 'block';
 			} else {
@@ -1808,67 +1808,90 @@
 		};
 	}();
 
-	const _mortgageCalculator = (() => {
+	const _mortgageCalculator = function() {
+
 		const _calculateMortgage = () => {
 			const resultContainer = document.querySelector('.mortgage-calculator-form #result');
-			if (!resultContainer) return;
+			if (!resultContainer) {
+				return;
+			}
 
-			const { monthlyPayment, formattedMonthlyPayment } = _getAmortization();
+			const result = _getAmortization();
 
-			resultContainer.setAttribute('monthlyPayment', monthlyPayment);
-			resultContainer.innerHTML = `&#8369;${formattedMonthlyPayment}`;
+			resultContainer.setAttribute('monthlyPayment', result.monthlyPayment);
+			resultContainer.innerHTML = `&#8369;${result.formattedMonthlyPayment}`;
 		};
 
 		const _calculateMortgageOnChange = () => {
-			document.addEventListener('change', (event) => {
-				const targets = ['#mortgageDownpayment', '#mortgageInterest', '#mortgageYear'];
-				if (targets.some(selector => event.target.matches(`.mortgage-calculator-form ${selector}`))) {
+			document.addEventListener('change', function(event) {
+				if (event.target.matches('.mortgage-calculator-form #mortgageDownpayment') ||
+					event.target.matches('.mortgage-calculator-form #mortgageInterest') ||
+					event.target.matches('.mortgage-calculator-form #mortgageYear')) {
 					_calculateMortgage();
 				}
 			});
 		};
 
-		const _createSelectElement = (id, options, selectedValue) => {
-			return createElements('select', { id, class: 'form-select' }, 
-				options.map(option =>
-					createElements('option', { value: option, ...(option === selectedValue ? { selected: true } : {}) }, [document.createTextNode(`${option}%`)])
-				)
-			);
-		};
-
 		const _createDownPaymentSelection = () => {
 			const container = document.querySelector('.mortgage-calculator-form #dpSelection');
-			if (container) {
-				const downPaymentOptions = [10, 20, 30, 40, 50, 60, 70, 80, 90];
-				const select = _createSelectElement('mortgageDownpayment', downPaymentOptions, 20);
-				container.insertAdjacentElement('afterend', select);
-				container.remove();
+			if (!container) {
+				return;
 			}
+
+			const downPaymentOptions = [10, 20, 30, 40, 50, 60, 70, 80, 90];
+			const select = createElements('select', { id: 'mortgageDownpayment', class: 'form-select' },
+				downPaymentOptions.map(option =>
+					createElements('option', { value: option, ...(option === 20 ? { selected: true } : {}) }, [
+						document.createTextNode(`${option}%`)
+					])
+				)
+			);
+
+			container.insertAdjacentElement('afterend', select);
+			container.remove();
 		};
 
 		const _createInterestSelection = () => {
 			const container = document.querySelector('.mortgage-calculator-form #interestSelection');
-			if (container) {
-				const interestOptions = Array.from({ length: 81 }, (_, i) => (i * 0.25).toFixed(2));
-				const select = _createSelectElement('mortgageInterest', interestOptions, '3.75');
-				container.insertAdjacentElement('afterend', select);
-				container.remove();
+			if (!container) {
+				return;
 			}
+
+			const select = createElements('select', { id: 'mortgageInterest', class: 'form-select' },
+				Array.from({ length: 81 }, (_, i) => i * 0.25).map(rate => // More efficient way to generate the array
+					createElements('option', { value: rate, ...(rate === 3.75 ? { selected: true } : {}) }, [
+						document.createTextNode(`${rate}%`)
+					])
+				)
+			);
+
+			container.insertAdjacentElement('afterend', select);
+			container.remove();
 		};
 
 		const _createYearsSelection = () => {
 			const container = document.querySelector('.mortgage-calculator-form #yearSelection');
-			if (container) {
-				const yearsOptions = Array.from({ length: 30 }, (_, i) => i + 1);
-				const select = _createSelectElement('mortgageYear', yearsOptions, 3);
-				container.insertAdjacentElement('afterend', select);
-				container.remove();
+			if (!container) {
+				return;
 			}
+
+			const yearsOptions = Array.from({ length: 30 }, (_, i) => i + 1);
+			const select = createElements('select', { id: 'mortgageYear', class: 'form-select' },
+				yearsOptions.map(year =>
+					createElements('option', { value: year, ...(year === 3 ? { selected: true } : {}) }, [
+						document.createTextNode(`${year} Years`)
+					])
+				)
+			);
+
+			container.insertAdjacentElement('afterend', select);
+			container.remove();
 		};
 
 		const _pmt = ({ rate, nper, presentValue }) => {
 			const presentValueInterestFactor = Math.pow(1 + rate, nper);
 			const payment = rate / (presentValueInterestFactor - 1) * -(presentValue * presentValueInterestFactor);
+
 			return payment;
 		};
 
@@ -1880,7 +1903,11 @@
 			for (let i = 0; i <= numberOfPayments; i++) {
 				const interest = remaining * (interestRate / 100 / paymentsPerYear);
 				const principle = monthlyPayment - interest;
-				schedule.push([i, Math.max(0, principle), Math.max(0, interest), Math.max(0, remaining)]);
+				const row = [i, principle > 0 ?
+					(principle < monthlyPayment ?
+						principle : monthlyPayment) : 0, interest > 0 ?
+						interest : 0, remaining > 0 ? remaining : 0];
+				schedule.push(row);
 				remaining -= principle;
 			}
 
@@ -1888,38 +1915,69 @@
 		};
 
 		const _getAmortization = () => {
-			const getValue = selector => document.querySelector(selector)?.value;
+			const sellingPriceElement = document.getElementById('sellingPrice');
+			if (!sellingPriceElement) {
+				console.error('Selling price element not found.');
+				return;
+			}
 
-			const sellingPrice = parseInt(getValue('#sellingPrice'), 10);
-			const downPaymentPercent = parseInt(getValue('#mortgageDownpayment option:checked'), 10);
+			const sellingPrice = parseInt(sellingPriceElement.value, 10);
+
+			const downPaymentPercentElement = document.querySelector('#mortgageDownpayment option:checked');
+			if (!downPaymentPercentElement) {
+				console.error('Down payment percentage element not found.');
+				return;
+			}
+
+			const downPaymentPercent = parseInt(downPaymentPercentElement.value, 10);
 			const downPayment = sellingPrice * (downPaymentPercent / 100);
 			const loanAmount = sellingPrice - downPayment;
 
-			const interestRate = parseFloat(getValue('#mortgageInterest option:checked'));
-			const years = parseInt(getValue('#mortgageYear option:checked'), 10);
+			const interestRateElement = document.querySelector('#mortgageInterest option:checked');
+			if (!interestRateElement) {
+				console.error('Interest rate element not found.');
+				return;
+			}
+
+			const interestRate = parseFloat(interestRateElement.value);
+			const yearsElement = document.querySelector('#mortgageYear option:checked');
+
+			if (!yearsElement) {
+				console.error('Loan term element not found.');
+				return;
+			}
+
+			const years = parseInt(yearsElement.value, 10) + 1;
 			const paymentsPerYear = 12;
 
 			const monthlyPayment = _pmt({
 				rate: (interestRate / 100) / paymentsPerYear,
-				nper: paymentsPerYear * (years + 1),
-				presentValue: -loanAmount
+				nper: paymentsPerYear * years,
+				presentValue: - loanAmount
+			});
+
+			const formattedMonthlyPayment = parseFloat(monthlyPayment.toFixed(2)).toLocaleString();
+
+			const schedule = _computeSchedule({
+				loanAmount: loanAmount,
+				interestRate: interestRate,
+				paymentsPerYear: paymentsPerYear,
+				years: years,
+				monthlyPayment: monthlyPayment
 			});
 
 			return {
 				monthlyPayment,
-				formattedMonthlyPayment: parseFloat(monthlyPayment.toFixed(2)).toLocaleString(),
-				schedule: _computeSchedule({
-					loanAmount,
-					interestRate,
-					paymentsPerYear,
-					years,
-					monthlyPayment
-				})
+				formattedMonthlyPayment,
+				schedule
 			};
 		};
 
 		return {
-			_initBeforeLoad: _calculateMortgageOnChange,
+			_initBeforeLoad: () => {
+				_calculateMortgageOnChange();
+			},
+
 			_initAfterLoad: () => {
 				_createDownPaymentSelection();
 				_createInterestSelection();
@@ -1927,7 +1985,8 @@
 				_calculateMortgage();
 			}
 		};
-	})();
+
+	}();
 
 	return {
 		initBeforeLoad: function() {

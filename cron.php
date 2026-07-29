@@ -1,14 +1,10 @@
 <?php
 
-use EO\Database\DataModel;
 use EO\Handlers\CacheHandler;
 use EO\Handlers\LoggerHandler;
 use EO\Handlers\ScheduleHandler;
-use EO\Handlers\FileSystemHandler;
 use EO\Facades\LoggerFacade as Logger;
 use EO\Facades\CacheFacade;
-use EO\Facades\FileSystemFacade;
-use EO\Facades\DataModelFacade;
 use EO\Support\Helpers\EnvParser;
 
 require_once("Config/config.php");
@@ -22,14 +18,10 @@ define("DOMAIN", $_ENV['DOMAIN']);
 define("CDN", $_ENV['CDN']);
 define("DEVELOPMENT", $_ENV['DEVELOPMENT']);
 
-DataModelFacade::setDataModel(new DataModel());
-FileSystemFacade::setFileSystem(new FileSystemHandler());
-
 if ($_ENV['CACHE_ENABLE']) {
 	CacheFacade::setCache( new CacheHandler() );
 }
-
-Logger::setLogger(new LoggerHandler());
+Logger::setLogger( new LoggerHandler() );
 
 try {
 	(new ScheduleHandler())->run();

@@ -326,12 +326,8 @@ function jsonFileToArray(string $filename): array
  */
 function readableFileSize($bytes)
 {
-	if($bytes <= 0) {
-		return 0;
-	}
-
 	$i = floor(log($bytes, 1024));
-	return round($bytes / pow(1024, $i), [0,0,2,2,3][$i])." ".['Bytes','KB','MB','GB','TB'][$i];
+	return round($bytes / pow(1024, $i), [0,0,2,2,3][$i]).['B','kB','MB','GB','TB'][$i];
 }
 
 /**
@@ -420,20 +416,6 @@ function convertToDateFilter($filter)
 	];
 
 	return isset($date_filters[ $filter ]) ? $date_filters[ $filter ] : $filter;
-}
-
-function getDirectorySize($path)
-{
-    $bytestotal = 0;
-    $path = realpath($path);
-
-    if($path!==false && $path!='' && file_exists($path)){
-        foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)) as $object){
-            $bytestotal += $object->getSize();
-        }
-    }
-
-    return $bytestotal;
 }
 
 /**

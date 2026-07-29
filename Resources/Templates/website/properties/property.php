@@ -66,11 +66,9 @@ $html[] = "<div class='page-body'>";
 			$html[] = "<div class='col-xl-8 col-lg-8 col-md-8 col-sm-12 col-12'>";
 
 				$html[] = "<div id='photos' class=' mb-3 '>";
-
-					$thumbnail = str_replace("thumbnail/", "", $data['thumb_img']);
 					
-					$html[] = "<div class='avatar avatar-xxxl w-100 bg-white' style='position: relative; height: 500px; background-image: url(".$thumbnail.")'>";
-						$html[] = "<a data-fslightbox data-type='image' href='".$thumbnail."' class='stretched-link'></a>";
+					$html[] = "<div class='avatar avatar-xxxl w-100 bg-white' style='position: relative; height: 500px; background-image: url(".$data['thumb_img'].")'>";
+						$html[] = "<a data-fslightbox data-type='image' href='".$data['thumb_img']."' class='stretched-link'></a>";
 						
 						if($data['total_images'] > 1) {
 							$html[] = "<div class='position-absolute top-0 start-0 p-3'>";

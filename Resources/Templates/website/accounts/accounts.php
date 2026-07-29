@@ -25,16 +25,14 @@ $html[] = "<div class='page-body'>";
 			$html[] = "<div class='row row-cards'>";
 				if(!empty($data['accounts'])) {
 					for($i = 0; $i < count($data['accounts']); $i++) {
-						if ($data['accounts'][$i]['account_id'] != 22) {
-							$html[] = "<div class='col-md-6 col-lg-3'>";
-								$html[] = "<div class='card'>";
-									$html[] = "<div class='card-body p-4 text-center'>";
-										$html[] = "<span class='avatar avatar-xl mb-3 rounded' style='background-image: url(".$data['accounts'][$i]['photo'].")'></span>";
-										$html[] = "<h3 class='m-0 mb-1'><a href='#'>".$data['accounts'][$i]['fullname']."</a></h3>";
-									$html[] = "</div>";
+						$html[] = "<div class='col-md-6 col-lg-3'>";
+							$html[] = "<div class='card'>";
+								$html[] = "<div class='card-body p-4 text-center'>";
+									$html[] = "<span class='avatar avatar-xl mb-3 rounded' style='background-image: url(".$data['accounts'][$i]['photo'].")'></span>";
+									$html[] = "<h3 class='m-0 mb-1'><a href=''>".$data['accounts'][$i]['fullname']."</a></h3>";
 								$html[] = "</div>";
 							$html[] = "</div>";
-						}
+						$html[] = "</div>";
 					}
 				}
 			$html[] = "</div>";

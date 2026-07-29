@@ -6,7 +6,7 @@ class Pagination  implements \IteratorAggregate
 {
 	private int $totalRows = 1;
 	private int $perPage = 2;
-	private int $totalPages = 1;
+	private int $totalPages;
 	private int $currentPage = 1;
 	private int $adjacent;
 	private int $itemStartingNumber;

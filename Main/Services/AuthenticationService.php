@@ -39,10 +39,10 @@ class AuthenticationService extends Service
 				throw new AuthenticationException($account_status_message);
 			}
 
-			/* if ($this->loginService->getDualLoginsCount($authenticated_user->account_id) > 0) {
+			if ($this->loginService->getDualLoginsCount($authenticated_user->account_id) > 0) {
 				Auth::forceLogout();
 				throw new AuthenticationException('Someone is already using this account. You have been logged out in all devices for your account security.');
-			} */
+			}
 
 			$this->loginService->create([
 				'account_id' => $authenticated_user->account_id,

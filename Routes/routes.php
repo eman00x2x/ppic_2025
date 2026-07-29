@@ -154,10 +154,6 @@ Router::group(['namespace' => 'EO\Http\Controllers'], function () {
 						Router::get('/deleteBackup', 'AdministrationController@deleteBackup', ['as' => 'administration.deleteBackup']);
 						Router::get('/restoreBackup', 'AdministrationController@restoreBackup', ['as' => 'administration.restoreBackup']);
 						Router::get('/cron', 'AdministrationController@cronTasks', ['as' => 'administration.cronTasks']);
-						Router::get('/disks', 'AdministrationController@diskSpaces', ['as' => 'administration.diskSpaces']);
-						Router::get('/error_log', 'AdministrationController@viewErrorLogFile', ['as' => 'administration.viewErrorLogFile']);
-						Router::get('/error_log/delete', 'AdministrationController@removeErrorLogFile', ['as' => 'administration.removeErrorLogFile']);
-						
 						Router::get('/cron/run/{task}', 'AdministrationController@cronTaskRun', ['as' => 'administration.cronTaskRun'])->where([ 'task' => '[\w\-\=]+' ]);
 						
 						Router::post('/queryResult', 'AdministrationController@queryResult', ['as' => 'administration.queryResult']);

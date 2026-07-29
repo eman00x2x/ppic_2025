@@ -46,7 +46,7 @@ $html[] = "<div class='d-flex flex-column'>";
 							
 							$html[] = "<div class='mb-3'>";
 								$html[] = "<label class='form-label'>Confirm Password</label>";
-								$html[] = "<input type='password' class='form-control' name='confirmPassword' id='confirmPassword'  placeholder='Confirm password' autocomplete='off' required />";
+								$html[] = "<input type='password' class='form-control' name='confirm_password' id='confirmPassword'  placeholder='Confirm password' autocomplete='off' required />";
 							$html[] = "</div>";
 						$html[] = "</form>";
 

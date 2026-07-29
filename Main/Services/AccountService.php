@@ -172,37 +172,6 @@ class AccountService extends Service
 		return $data;
 	}
 
-	function savePassword($id, $data)
-	{
-		$this->setResetPasswordValidationConstraints($data);
-	    $data = $this->validateInput($data);
-
-		if(isset($data['password'])) {
-			$data['password'] = Account::encrypt($data['password']);
-		}
-
-		try {
-			Account::modify($data, $id);
-			$this->log([
-				"type" => "info", 
-				"message" => "Password change with ID: $id succeeded",
-				"data" => $data
-			]);
-		}catch (\Exception $e) {
-			$this->log([
-				"type" => "warning",
-				"message" => "Password change with ID: $id failed",
-				"data" => [
-					"error" => $e->getMessage(),
-					"data" => $data
-				]
-			]);
-			throw new \Exception($e->getMessage());
-		}
-
-		return $data;
-	}
-
 	public function updateAccountsStatus(array $ids, string $status): void
 	{
 		if(empty($ids)) {
@@ -290,7 +259,7 @@ class AccountService extends Service
 				"required" => true,
 				"length" => ["min" => 6]
 			],
-			"confirmPassword" => [
+			"confirm_password" => [
 				"required" => true,
 				"confirmPassword" => $data['password']
 			]

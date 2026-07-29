@@ -116,11 +116,13 @@ class AuthenticationController extends \EO\Http\BaseController
 		$account_service = new AccountService();
 
 		try {
-			$account_service->savePassword($id, $request);
+			$account_service->setResetPasswordValidationConstraints($request);
+			$validated_data = $account_service->validateInput($request);
 		} catch (\Exception $e) {
 			return $this->handleMessageResponse($e->getMessage(), "error", 2);
 		}
 
+		$account_service->update($id, $validated_data);
 		return $this->handleMessageResponse("Password successfully updated!");
 	}
 
