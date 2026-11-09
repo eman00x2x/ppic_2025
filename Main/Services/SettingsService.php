@@ -28,7 +28,7 @@ class SettingsService extends Service
 		self::$collections = Settings::getId($this->settingsId);
 		$items = self::$collections->getItems();
 
-		return $items->first()->toArray();
+		return $items->first(null)->toArray();
 	}
 
 	function create(array $data) {}

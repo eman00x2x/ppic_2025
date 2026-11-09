@@ -137,7 +137,7 @@ $html[] = "<div class='page-body'>";
 				$html[] = "</div>";
 
 				$html[] = "<div class='mb-3'>";
-					$html[] = "<p><span class='text-muted'><i class='ti ti-tag me-1'></i> Tags:</span> ".implode(", ", array_map("ucwords", $data['tags']))."</p>";
+					$html[] = "<p><span class='text-muted'><i class='ti ti-tag me-1'></i> Tags:</span> ".implode(", ", array_map("ucwords", ($data['tags'] ?? [])))."</p>";
 				$html[] = "</div>";
 
 				$html[] = "<div class='border bg-white p-3 py-5'>";
@@ -186,7 +186,7 @@ $html[] = "<div class='page-body'>";
 
 					$html[] = "<tr>";
 						$html[] = "<td>Mode of Payment</td>";
-						$html[] = "<td>".$data['payment_details']['payment_mode']."</td>";
+						$html[] = "<td>".($data['payment_details']['payment_mode'] ?? "")."</td>";
 					$html[] = "</tr>";
 					$html[] = "<tr>";
 						$html[] = "<td>Bank Loan</td>";

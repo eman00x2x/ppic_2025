@@ -72,11 +72,11 @@ class Collections implements \IteratorAggregate
 	 * If no callback is provided, the items will be filtered by their
 	 * boolean value.
 	 *
-	 * @param callable $callback The callback function to apply to each item.
+	 * @param callable|null $callback The callback function to apply to each item.
 	 *
 	 * @return Collections A new collection with the filtered items.
 	 */
-	public function filter(callable $callback = null)
+	public function filter(callable|null $callback)
 	{
 		if ($callback) {
 			// Use array_filter to apply the callback to filter the items
@@ -188,7 +188,7 @@ class Collections implements \IteratorAggregate
 	 *
 	 * @return mixed The first item that matches the callback condition, or the default value.
 	 */
-	public function first(callable $callback = null, $default = null)
+	public function first($callback, $default = null)
 	{
 		if (is_null($callback)) {
 			return count($this->items) > 0 ? reset($this->items) : $this->value($default);
@@ -421,7 +421,7 @@ class Collections implements \IteratorAggregate
      */
 	function value($value)
 	{
-		return ($value instanceof Closure) ? $value() : $value;
+		return ($value instanceof \Closure) ? $value() : $value;
 	}
 
     /**
@@ -457,7 +457,7 @@ class Collections implements \IteratorAggregate
 			case '!==':
 				return $a !== $b;
 			default:
-				throw new InvalidArgumentException("Invalid comparison operator: $operator");
+				throw new \InvalidArgumentException("Invalid comparison operator: $operator");
 		}
 	}
 
@@ -577,7 +577,7 @@ class Collections implements \IteratorAggregate
 		$unwrap = [];
 
 		foreach ($this->items as $item) {
-			if ($item instanceof Collection) {
+			if ($item instanceof Collections) {
 				$unwrap = array_merge($unwrap, $item->all());
 			} else {
 				$unwrap[] = $item;
@@ -612,7 +612,7 @@ class Collections implements \IteratorAggregate
 	 */
 	public static function make($value = [])
 	{
-		if ($value instanceof Collection) {
+		if ($value instanceof Collections) {
 			return $value;
 		}
 

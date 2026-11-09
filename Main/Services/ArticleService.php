@@ -65,7 +65,7 @@ class ArticleService extends Service
 		if ($items->isNotEmpty()) {
 			$article = $items->map(function($data, $key) {
 				return $this->formatResultData($data);
-			})->first()->toArray();
+			})->first(null)->toArray();
 			
 			if ($_ENV['CACHE_ENABLE']) {
 				Cache::setData("article-$id", $article);
@@ -91,7 +91,7 @@ class ArticleService extends Service
 		if($items->isNotEmpty()) {
 			$article = $items->map(function($data, $key) {
 				return $this->formatResultData($data);
-			})->first()->toArray();
+			})->first(null)->toArray();
 			
 			if ($_ENV['CACHE_ENABLE']) {
 				Cache::setData("article-$name", $article);

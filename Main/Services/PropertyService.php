@@ -70,7 +70,7 @@ class PropertyService extends Service
 		if($items->isNotEmpty()) {
 			$property = $items->map(function($data, $key) {
 				return $this->formatResultData($data);
-			})->first()->toArray();
+			})->first(null)->toArray();
 
 			$property['images'] = $this->propertyImageService->getPropertyImages(["property_id" => $property['property_id']]);
 			$property['total_images'] = count($property['images']);
@@ -99,7 +99,7 @@ class PropertyService extends Service
 		if($items->isNotEmpty()) {
 			$property = $items->map(function($data, $key) {
 				return $this->formatResultData($data);
-			})->first()->toArray();
+			})->first(null)->toArray();
 			
 			$property['images'] = $this->propertyImageService->getPropertyImages(["property_id" => $property['property_id']]);
 			$property['total_images'] = count($property['images']);
@@ -215,11 +215,11 @@ class PropertyService extends Service
 	public function updateStatus(array $ids, string $status): void
 	{
 		if(!in_array($status, [1, 2, 3])) {
-			throw new InvalidArgumentException("Invalid status provided for updateStatus, status should be available or sold!");
+			throw new \InvalidArgumentException("Invalid status provided for updateStatus, status should be available or sold!");
 		}
 
 		if(empty($ids)) {
-			throw new InvalidArgumentException("No IDs provided for updateStatus, IDs should be array and not empty!");
+			throw new \InvalidArgumentException("No IDs provided for updateStatus, IDs should be array and not empty!");
 		}
 
 		Property::modify(['status' => $status, 'modified_at' => DATE_NOW], $ids);
@@ -245,7 +245,7 @@ class PropertyService extends Service
 	public function changeCategory(array $ids, string $category): void
 	{
 		if(empty($ids)) {
-			throw new InvalidArgumentException("No IDs provided for changeCategory, IDs should be array and not empty!");
+			throw new \InvalidArgumentException("No IDs provided for changeCategory, IDs should be array and not empty!");
 		}
 
 		Property::modify(['category' => $category, 'modified_at' => DATE_NOW], $ids);
@@ -377,7 +377,7 @@ class PropertyService extends Service
 		return [];
 	}
 
-	function getTotalPropertiesUpdated(array $filter): array
+	function getTotalPropertiesUpdated(array $filter)
 	{
 		unset($filter['created_at']);
 		$filter["status"] = 1;
@@ -415,7 +415,7 @@ class PropertyService extends Service
 		$items = self::$collections->getItems();
 
 		if($items->isNotEmpty()) {
-			return $items->first()->toArray();
+			return $items->first(null)->toArray();
 		}
 		
 		return false;
@@ -423,11 +423,11 @@ class PropertyService extends Service
 
 	private function formatResultData(IModel &$data): IModel
 	{
-		if (file_exists(ROOT . "/Public/global_assets/images/properties/thumb-" . basename($data->thumb_img))) {
+		if (file_exists(ROOT . "/Public/global_assets/images/properties/thumb-" . basename($data->thumb_img ?? ""))) {
 			$thumb_img_parts = explode("/", $data->thumb_img);
 			$thumb_img_filename = array_pop($thumb_img_parts);
 			$data->thumb_img = implode("/", $thumb_img_parts) . "/thumb-" . $thumb_img_filename;
-		} else if (file_exists(ROOT . "/Public/global_assets/images/listings/thumb-" . basename($data->thumb_img))) {
+		} else if (file_exists(ROOT . "/Public/global_assets/images/listings/thumb-" . basename($data->thumb_img ?? ""))) {
 			$thumb_img_parts = explode("/", $data->thumb_img);
 			$thumb_img_filename = array_pop($thumb_img_parts);
 			$data->thumb_img = implode("/", $thumb_img_parts) . "/thumb-" . $thumb_img_filename;
@@ -606,7 +606,7 @@ class PropertyService extends Service
 		];
 	}
 
-	public function downloadData(int $account_id = null)
+	public function downloadData(int|null $account_id)
 	{
 		$columns = Property::columns();
 		unset($columns['join']);

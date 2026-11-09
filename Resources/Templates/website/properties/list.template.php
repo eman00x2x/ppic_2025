@@ -22,7 +22,7 @@ foreach($data['properties'] as $property) {
 			$html[] = "<div class='col-12 col-md-7 col-lg-8 col-xl-8'>";
 				$html[] = "<div class='card-body'>";
 					$html[] = "<h3 class='card-title text-primary mb-1 fs-18'>".$property['title']."</h3>";
-					$html[] = "<p class='card-text text-muted mb-3 fs-14'><i class='ti ti-home me-1'></i> ".$property['category']." ".($property['address']['village'] != "" ?  "at ".$property['address']['village'] : "")."</p>";
+					$html[] = "<p class='card-text text-muted mb-3 fs-14'><i class='ti ti-home me-1'></i> ".$property['category']." ".($property['address']['village'] ?? "" ?  "at ".($property['address']['village'] ?? "") : "")."</p>";
 					$html[] = "<p class='card-text text-dark fw-bold m-0 mb-3 price_tag'>&#8369; ".$property['price_tag']."</p>";
 					$html[] = "<ul class='list-group list-group-horizontal'>";
 						if($property['lot_area'] != "" && $property['lot_area'] > 0) { $html[] = "<li class='list-group-item border-0 text-center p-2 ps-0 px-4'><i class='ti ti-maximize me-1'></i> ".number_format($property['lot_area'], 0)."<span class='text-muted fs-14'>m<sup>2</sup></span> <span class='d-block text-muted fs-12'>Lot Area</span></li>"; }

@@ -2,9 +2,9 @@
 
 namespace EO;
 
-require_once(ROOT . '/Config/settings.php');
-require_once(ROOT . '/Main/Support/helpers.php');
-require_once(ROOT . '/Vendor/pecee/simple-router/helpers.php');
+require_once('../Config/settings.php');
+require_once('Support/helpers.php');
+require_once('../Vendor/pecee/simple-router/helpers.php');
 
 use Pecee\SimpleRouter\SimpleRouter as Router;
 use Pecee\Http\Middleware\BaseCsrfVerifier;
@@ -84,7 +84,7 @@ class EOEngine
 
 	public function loadEnv()
 	{
-		new EnvParser(ROOT . "/.env");
+		new EnvParser(ROOT . ".env");
 
 		define("DOMAIN", $_ENV['DOMAIN']);
 		define("CDN", $_ENV['CDN']);
